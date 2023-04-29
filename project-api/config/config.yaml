@@ -1,0 +1,13 @@
+server:
+  name: "project-api"
+  addr: "127.0.0.1:80"
+zap:
+  debugFileName: "F:\\go\\ms_project\\logs\\debug\\menu-debug.log"
+  infoFileName: "F:\\go\\ms_project\\logs\\info\\menu-info.log"
+  warnFileName: "F:\\go\\ms_project\\logs\\error\\menu-error.log"
+  maxSize: 500
+  maxAge: 28
+  maxBackups: 3
+etcd:
+  addrs:
+    - "127.0.0.1:2379"

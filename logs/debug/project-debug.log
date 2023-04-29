@@ -1,0 +1,75 @@
+{"level":"INFO","time":"2023-01-22T15:32:44.057+0800","caller":"user/user.go:40","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-01-22T15:32:44.066+0800","caller":"user/user.go:41","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-01-22T15:32:44.067+0800","caller":"user/user.go:42","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"INFO","time":"2023-02-04T15:42:25.584+0800","caller":"user/user.go:40","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-02-04T15:42:25.585+0800","caller":"user/user.go:41","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-02-04T15:42:25.585+0800","caller":"user/user.go:42","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"INFO","time":"2023-02-04T15:44:24.941+0800","caller":"user/user.go:40","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-02-04T15:44:24.941+0800","caller":"user/user.go:41","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-02-04T15:44:24.942+0800","caller":"user/user.go:42","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"INFO","time":"2023-02-04T15:45:47.437+0800","caller":"user/user.go:40","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-02-04T15:45:47.437+0800","caller":"user/user.go:41","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-02-04T15:45:47.438+0800","caller":"user/user.go:42","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"INFO","time":"2023-02-04T15:54:40.748+0800","caller":"user/user.go:40","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-02-04T15:54:40.749+0800","caller":"user/user.go:41","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-02-04T15:54:40.749+0800","caller":"user/user.go:42","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"INFO","time":"2023-02-15T14:12:38.784+0800","caller":"login.service.v1/login_service.go:37","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-02-15T14:12:38.784+0800","caller":"login.service.v1/login_service.go:38","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-02-15T14:12:38.785+0800","caller":"login.service.v1/login_service.go:39","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"INFO","time":"2023-02-18T22:47:00.175+0800","caller":"login.service.v1/login_service.go:38","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-02-18T22:47:00.176+0800","caller":"login.service.v1/login_service.go:39","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-02-18T22:47:00.176+0800","caller":"login.service.v1/login_service.go:40","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"ERROR","time":"2023-02-19T11:07:57.846+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-02-19T11:08:00.856+0800","caller":"discovery/resolver.go:104","msg":"sync failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-02-19T11:08:00.856+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-02-19T11:08:03.864+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
+{"level":"INFO","time":"2023-02-20T19:04:05.064+0800","caller":"login.service.v1/login_service.go:38","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-02-20T19:04:05.065+0800","caller":"login.service.v1/login_service.go:39","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-02-20T19:04:05.065+0800","caller":"login.service.v1/login_service.go:40","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"INFO","time":"2023-02-22T21:01:02.378+0800","caller":"login.service.v1/login_service.go:41","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-02-22T21:01:02.379+0800","caller":"login.service.v1/login_service.go:42","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-02-22T21:01:02.379+0800","caller":"login.service.v1/login_service.go:43","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"INFO","time":"2023-02-22T21:04:22.791+0800","caller":"login.service.v1/login_service.go:41","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-02-22T21:04:22.791+0800","caller":"login.service.v1/login_service.go:42","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-02-22T21:04:22.792+0800","caller":"login.service.v1/login_service.go:43","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"ERROR","time":"2023-02-22T21:05:44.849+0800","caller":"login.service.v1/login_service.go:61","msg":"Register redis get error","error":"redis: nil"}
+{"level":"ERROR","time":"2023-02-28T20:44:23.902+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-02-28T20:45:12.954+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-02-28T20:45:44.764+0800","caller":"discovery/resolver.go:104","msg":"sync failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-02-28T20:45:44.765+0800","caller":"discovery/resolver.go:104","msg":"sync failed","error":"context deadline exceeded"}
+{"level":"INFO","time":"2023-02-28T21:23:32.118+0800","caller":"login.service.v1/login_service.go:55","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-02-28T21:23:32.120+0800","caller":"login.service.v1/login_service.go:56","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-02-28T21:23:32.120+0800","caller":"login.service.v1/login_service.go:57","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"INFO","time":"2023-03-01T14:19:48.008+0800","caller":"login.service.v1/login_service.go:55","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-03-01T14:19:48.131+0800","caller":"login.service.v1/login_service.go:56","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-03-01T14:19:48.132+0800","caller":"login.service.v1/login_service.go:57","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"INFO","time":"2023-03-01T14:20:12.171+0800","caller":"login.service.v1/login_service.go:55","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-03-01T14:20:12.171+0800","caller":"login.service.v1/login_service.go:56","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-03-01T14:20:12.171+0800","caller":"login.service.v1/login_service.go:57","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"ERROR","time":"2023-03-01T14:20:27.100+0800","caller":"login.service.v1/login_service.go:152","msg":"Login db FindMember err","error":"invalid value, should be pointer to struct or slice"}
+{"level":"ERROR","time":"2023-03-01T14:20:55.851+0800","caller":"login.service.v1/login_service.go:152","msg":"Login db FindMember err","error":"invalid value, should be pointer to struct or slice"}
+{"level":"INFO","time":"2023-03-01T19:38:04.206+0800","caller":"login.service.v1/login_service.go:55","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-03-01T19:38:04.206+0800","caller":"login.service.v1/login_service.go:56","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-03-01T19:38:04.207+0800","caller":"login.service.v1/login_service.go:57","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"ERROR","time":"2023-03-01T20:21:12.828+0800","caller":"project.service.v1/project.service.v1.go:33","msg":"Index db FindMenus error","error":"Error 1146 (42S02): Table 'msproject.ms_project_menu' doesn't exist"}
+{"level":"INFO","time":"2023-03-05T17:05:36.940+0800","caller":"login.service.v1/login_service.go:56","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-03-05T17:05:36.941+0800","caller":"login.service.v1/login_service.go:57","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-03-05T17:05:36.941+0800","caller":"login.service.v1/login_service.go:58","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"INFO","time":"2023-03-05T17:31:48.871+0800","caller":"login.service.v1/login_service.go:56","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-03-05T17:31:48.871+0800","caller":"login.service.v1/login_service.go:57","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-03-05T17:31:48.872+0800","caller":"login.service.v1/login_service.go:58","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"INFO","time":"2023-03-05T17:32:27.404+0800","caller":"login.service.v1/login_service.go:56","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-03-05T17:32:27.404+0800","caller":"login.service.v1/login_service.go:57","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-03-05T17:32:27.405+0800","caller":"login.service.v1/login_service.go:58","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"INFO","time":"2023-04-28T20:21:04.498+0800","caller":"login.service.v1/login_service.go:56","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-04-28T20:21:04.500+0800","caller":"login.service.v1/login_service.go:57","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-04-28T20:21:04.500+0800","caller":"login.service.v1/login_service.go:58","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"INFO","time":"2023-04-28T20:43:46.928+0800","caller":"login.service.v1/login_service.go:56","msg":"短信平台调用成功，发送短信  INFO"}
+{"level":"DEBUG","time":"2023-04-28T20:43:46.928+0800","caller":"login.service.v1/login_service.go:57","msg":"短信平台调用成功，发送短信  DEBUG"}
+{"level":"ERROR","time":"2023-04-28T20:43:46.928+0800","caller":"login.service.v1/login_service.go:58","msg":"短信平台调用成功，发送短信  ERROR"}
+{"level":"ERROR","time":"2023-04-29T09:42:09.736+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-04-29T09:42:12.736+0800","caller":"discovery/resolver.go:104","msg":"sync failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-04-29T09:42:12.751+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-04-29T16:31:38.976+0800","caller":"project.service.v1/project.service.v1.go:50","msg":"project FindProjectByMemId error","error":"Error 1054 (42S22): Unknown column 'mem_code' in 'where clause'"}
+{"level":"ERROR","time":"2023-04-29T16:31:46.368+0800","caller":"project.service.v1/project.service.v1.go:50","msg":"project FindProjectByMemId error","error":"Error 1054 (42S22): Unknown column 'mem_code' in 'where clause'"}
+{"level":"ERROR","time":"2023-04-29T16:35:26.184+0800","caller":"project.service.v1/project.service.v1.go:50","msg":"project FindProjectByMemId error","error":"Error 1054 (42S22): Unknown column 'mem_code' in 'where clause'"}
