@@ -18,5 +18,6 @@ func main() {
 	var stop = func() {
 		gc.Stop()
 	}
+
 	srv.Run(r, config.C.SC.Name, config.C.SC.Addr, stop)
 }

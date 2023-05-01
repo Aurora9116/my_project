@@ -117,5 +117,39 @@ func (p *HandlerProject) projectSave(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	memberId := c.GetInt64("memberId")
-	s := c.GetString("organizationCode")
+	organizationCode := c.GetString("organizationCode")
+	var req *pro.SaveProjectRequest
+	c.ShouldBind(&req)
+	msg := &project.ProjectRpcMessage{
+		MemberId:         memberId,
+		OrganizationCode: organizationCode,
+		Name:             req.Name,
+		TemplateCode:     req.TemplateCode,
+		Description:      req.Description,
+		Id:               int64(req.Id),
+	}
+	saveProject, err := Pro.SaveProject(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Fail(code, msg))
+	}
+	var rsp *pro.SaveProject
+	copier.Copy(&rsp, saveProject)
+	c.JSON(http.StatusOK, result.Success(rsp))
+}
+
+func (p *HandlerProject) ReadProject(c *gin.Context) {
+	result := &common.Result{}
+	projectCode := c.PostForm("projectCode")
+	memberId := c.GetInt64("memberId")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	detail, err := Pro.FindProjectDetail(ctx, &project.ProjectRpcMessage{ProjectCode: projectCode, MemberId: memberId})
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Fail(code, msg))
+	}
+	pd := &pro.ProjectDetail{}
+	copier.Copy(&pd, detail)
+	c.JSON(http.StatusOK, result.Success(pd))
 }
