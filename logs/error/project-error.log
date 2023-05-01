@@ -35,3 +35,6 @@
 {"level":"ERROR","time":"2023-04-29T16:31:38.976+0800","caller":"project.service.v1/project.service.v1.go:50","msg":"project FindProjectByMemId error","error":"Error 1054 (42S22): Unknown column 'mem_code' in 'where clause'"}
 {"level":"ERROR","time":"2023-04-29T16:31:46.368+0800","caller":"project.service.v1/project.service.v1.go:50","msg":"project FindProjectByMemId error","error":"Error 1054 (42S22): Unknown column 'mem_code' in 'where clause'"}
 {"level":"ERROR","time":"2023-04-29T16:35:26.184+0800","caller":"project.service.v1/project.service.v1.go:50","msg":"project FindProjectByMemId error","error":"Error 1054 (42S22): Unknown column 'mem_code' in 'where clause'"}
+{"level":"ERROR","time":"2023-04-30T01:27:22.560+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-04-30T10:15:26.537+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-04-30T10:15:29.548+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}

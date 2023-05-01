@@ -174,6 +174,9 @@ func (ls *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*lo
 		v.OwnerCode = memMsg.Code
 		v.CreateTime = tms.FormatByMill(organization.ToMap(orgs)[v.Id].CreateTime)
 	}
+	if len(orgs) > 0 {
+		memMsg.OrganizationCode, _ = encrypts.EncryptInt64(orgs[0].Id, model.AESKey)
+	}
 	// 3.用jwt生成token
 	memIdStr := strconv.FormatInt(mem.Id, 10)
 	exp := time.Duration(config.C.JwtConfig.AccessExp) * 3600 * 24 * time.Second
@@ -209,12 +212,20 @@ func (ls *LoginService) TokenVerify(ctx context.Context, msg *login.TokenVerifyM
 	id, _ := strconv.ParseInt(parseToken, 10, 64)
 	memberById, err := ls.memberRepo.FindMemberById(context.Background(), id)
 	if err != nil {
-		zap.L().Error("Login FindMemberById error", zap.Error(err))
+		zap.L().Error("TokenVerify db FindMemberById error", zap.Error(err))
 		return nil, errs.GrpcError(model.DbError)
 	}
 	memMsg := &login.MemberMessage{}
 	copier.Copy(memMsg, memberById)
 	memMsg.Code, _ = encrypts.EncryptInt64(memberById.Id, model.AESKey)
+	orgs, err := ls.organizationRepo.FindOrganizationByMemId(context.Background(), memberById.Id)
+	if err != nil {
+		zap.L().Error("TokenVerify db FindMember err", zap.Error(err))
+		return nil, errs.GrpcError(model.DbError)
+	}
+	if len(orgs) > 0 {
+		memMsg.OrganizationCode, _ = encrypts.EncryptInt64(orgs[0].Id, model.AESKey)
+	}
 	return &login.TokenVerifyResponse{Member: memMsg}, nil
 }
 func (ls *LoginService) MyOrgList(ctx context.Context, msg *login.UserMessage) (*login.OrgListResponse, error) {

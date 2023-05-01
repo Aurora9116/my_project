@@ -1,5 +1,12 @@
 package pro
 
+import (
+	encrypts "test.com/project-common/encrypts"
+	"test.com/project-common/tms"
+	"test.com/project-project/internal/data/task"
+	"test.com/project-user/pkg/model"
+)
+
 type Project struct {
 	Id                 int64
 	Cover              string
@@ -44,6 +51,17 @@ func (*ProjectMember) TableName() string {
 	return "ms_project_member"
 }
 
+type ProjectCollection struct {
+	Id          int64
+	ProjectCode int64
+	MemberCode  int64
+	CreateTime  int64
+}
+
+func (*ProjectCollection) TableName() string {
+	return "ms_project_collection"
+}
+
 type ProjectAndMember struct {
 	Project
 	ProjectCode int64
@@ -76,4 +94,61 @@ func ToMap(orgs []*ProjectAndMember) map[int64]*ProjectAndMember {
 		m[v.Id] = v
 	}
 	return m
+}
+
+type ProjectTemplate struct {
+	Id               int
+	Name             string
+	Description      string
+	Sort             int
+	CreateTime       int64
+	OrganizationCode int64
+	Cover            string
+	MemberCode       int64
+	IsSystem         int
+}
+
+func (*ProjectTemplate) TableName() string {
+	return "ms_project_template"
+}
+
+type ProjectTemplateAll struct {
+	Id               int
+	Name             string
+	Description      string
+	Sort             int
+	CreateTime       string
+	OrganizationCode string
+	Cover            string
+	MemberCode       string
+	IsSystem         int
+	TaskStages       []*task.TaskStagesOnlyName
+	Code             string
+}
+
+func (pt ProjectTemplate) Convert(taskStages []*task.TaskStagesOnlyName) *ProjectTemplateAll {
+	organizationCode, _ := encrypts.EncryptInt64(pt.OrganizationCode, model.AESKey)
+	memberCode, _ := encrypts.EncryptInt64(pt.MemberCode, model.AESKey)
+	code, _ := encrypts.EncryptInt64(int64(pt.Id), model.AESKey)
+	pta := &ProjectTemplateAll{
+		Id:               pt.Id,
+		Name:             pt.Name,
+		Description:      pt.Description,
+		Sort:             pt.Sort,
+		CreateTime:       tms.FormatByMill(pt.CreateTime),
+		OrganizationCode: organizationCode,
+		Cover:            pt.Cover,
+		MemberCode:       memberCode,
+		IsSystem:         pt.IsSystem,
+		TaskStages:       taskStages,
+		Code:             code,
+	}
+	return pta
+}
+func ToProjectTemplateIds(pts []ProjectTemplate) []int {
+	var ids []int
+	for _, v := range pts {
+		ids = append(ids, v.Id)
+	}
+	return ids
 }
