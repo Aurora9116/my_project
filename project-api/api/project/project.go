@@ -61,6 +61,7 @@ func (p *HandlerProject) myProjectList(c *gin.Context) {
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Fail(code, msg))
+		return
 	}
 	var pms []*pro.ProjectAndMember
 	copier.Copy(&pms, myProjectResponse.Pm)
@@ -96,6 +97,7 @@ func (p *HandlerProject) projectTemplate(c *gin.Context) {
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Fail(code, msg))
+		return
 	}
 	var pms []*pro.ProjectTemplate
 	copier.Copy(&pms, templateReponse.Ptm)
@@ -132,15 +134,17 @@ func (p *HandlerProject) projectSave(c *gin.Context) {
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Fail(code, msg))
+		return
 	}
-	var rsp *pro.SaveProject
+	rsp := &pro.SaveProject{}
 	copier.Copy(&rsp, saveProject)
 	c.JSON(http.StatusOK, result.Success(rsp))
 }
 
-func (p *HandlerProject) ReadProject(c *gin.Context) {
+func (p *HandlerProject) readProject(c *gin.Context) {
 	result := &common.Result{}
 	projectCode := c.PostForm("projectCode")
+	fmt.Println("projectCode==>", projectCode)
 	memberId := c.GetInt64("memberId")
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
@@ -148,8 +152,53 @@ func (p *HandlerProject) ReadProject(c *gin.Context) {
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Fail(code, msg))
+		return
 	}
 	pd := &pro.ProjectDetail{}
 	copier.Copy(&pd, detail)
 	c.JSON(http.StatusOK, result.Success(pd))
+}
+
+func (*HandlerProject) recycleProject(c *gin.Context) {
+	result := &common.Result{}
+	projectCode := c.PostForm("projectCode")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	_, err := Pro.UpdateDeletedProject(ctx, &project.ProjectRpcMessage{ProjectCode: projectCode, Deleted: true})
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Fail(code, msg))
+		return
+	}
+	c.JSON(http.StatusOK, result.Success([]int{}))
+}
+
+func (p *HandlerProject) recoveryProject(c *gin.Context) {
+	result := &common.Result{}
+	projectCode := c.PostForm("projectCode")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	_, err := Pro.UpdateDeletedProject(ctx, &project.ProjectRpcMessage{ProjectCode: projectCode, Deleted: false})
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Fail(code, msg))
+		return
+	}
+	c.JSON(http.StatusOK, result.Success([]int{}))
+}
+
+func (p *HandlerProject) collectProject(c *gin.Context) {
+	result := &common.Result{}
+	projectCode := c.PostForm("projectCode")
+	collectType := c.PostForm("type")
+	memberId := c.GetInt64("memberId")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	_, err := Pro.UpdateCollectProject(ctx, &project.ProjectRpcMessage{ProjectCode: projectCode, CollectType: collectType, MemberId: memberId})
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Fail(code, msg))
+		return
+	}
+	c.JSON(http.StatusOK, result.Success([]int{}))
 }

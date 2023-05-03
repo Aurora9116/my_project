@@ -61,16 +61,34 @@ func (p *ProjectService) FindProjectByMemId(ctx context.Context, msg *project.Pr
 	var total int64
 	var err error
 	if msg.SelectBy == "" || msg.SelectBy == "my" {
-		pms, total, err = p.projectRepo.FindProjectByMemId(ctx, memberId, "", page, pageSize)
+		pms, total, err = p.projectRepo.FindProjectByMemId(ctx, memberId, "and deleted=0 ", page, pageSize)
 	}
 	if msg.SelectBy == "archive" {
-		pms, total, err = p.projectRepo.FindProjectByMemId(ctx, memberId, "and archive = 1", page, pageSize)
+		pms, total, err = p.projectRepo.FindProjectByMemId(ctx, memberId, "and archive=1 ", page, pageSize)
 	}
 	if msg.SelectBy == "deleted" {
-		pms, total, err = p.projectRepo.FindProjectByMemId(ctx, memberId, "and deleted = 1", page, pageSize)
+		pms, total, err = p.projectRepo.FindProjectByMemId(ctx, memberId, "and deleted=1 ", page, pageSize)
 	}
 	if msg.SelectBy == "collect" {
 		pms, total, err = p.projectRepo.FindCollectProjectByMemId(ctx, memberId, page, pageSize)
+		for _, v := range pms {
+			v.Collected = model.Collected
+		}
+	} else {
+		collectPms, _, err := p.projectRepo.FindCollectProjectByMemId(ctx, memberId, page, pageSize)
+		if err != nil {
+			zap.L().Error("project FindProjectByMemId::FindCollectProjectByMemId error", zap.Error(err))
+			return nil, errs.GrpcError(model.DbError)
+		}
+		var cMap = make(map[int64]*pro.ProjectAndMember)
+		for _, v := range collectPms {
+			cMap[v.Id] = v
+		}
+		for _, v := range pms {
+			if cMap[v.ProjectCode] != nil {
+				v.Collected = model.Collected
+			}
+		}
 	}
 	if err != nil {
 		zap.L().Error("project FindProjectByMemId error", zap.Error(err))
@@ -189,6 +207,7 @@ func (p *ProjectService) SaveProject(ctx context.Context, msg *project.ProjectRp
 		TaskBoardTheme:   pr.TaskBoardTheme,
 	}
 	return rsp, nil
+
 }
 func (p *ProjectService) FindProjectDetail(ctx context.Context, msg *project.ProjectRpcMessage) (*project.ProjectDetailMessage, error) {
 	projectCodeStr, _ := encrypts.Decrypt(msg.ProjectCode, model.AESKey)
@@ -213,7 +232,7 @@ func (p *ProjectService) FindProjectDetail(ctx context.Context, msg *project.Pro
 		return nil, errs.GrpcError(model.DbError)
 	}
 	if isCollect {
-		projectAndMember.Collected = model.Collectd
+		projectAndMember.Collected = model.Collected
 	}
 	var detailMsg = &project.ProjectDetailMessage{}
 	copier.Copy(&detailMsg, projectAndMember)
@@ -225,4 +244,16 @@ func (p *ProjectService) FindProjectDetail(ctx context.Context, msg *project.Pro
 	detailMsg.Order = int32(projectAndMember.Sort)
 	detailMsg.CreateTime = tms.FormatByMill(projectAndMember.CreateTime)
 	return detailMsg, nil
+}
+func (p *ProjectService) UpdateDeletedProject(ctx context.Context, msg *project.ProjectRpcMessage) (*project.DeletedProjectResponse, error) {
+	projectCodeStr, _ := encrypts.Decrypt(msg.ProjectCode, model.AESKey)
+	projectCode, _ := strconv.ParseInt(projectCodeStr, 10, 64)
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	err := p.projectRepo.UpdateDeletedProject(c, projectCode, msg.Deleted)
+	if err != nil {
+		zap.L().Error("project RecycleProject DeleteProject error", zap.Error(err))
+		return nil, errs.GrpcError(model.DbError)
+	}
+	return &project.DeletedProjectResponse{}, nil
 }

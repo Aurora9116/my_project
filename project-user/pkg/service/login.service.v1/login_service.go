@@ -225,8 +225,8 @@ func (ls *LoginService) TokenVerify(ctx context.Context, msg *login.TokenVerifyM
 	}
 	if len(orgs) > 0 {
 		memMsg.OrganizationCode, _ = encrypts.EncryptInt64(orgs[0].Id, model.AESKey)
-		memMsg.CreateTime = tms.FormatByMill(memberById.CreateTime)
 	}
+	memMsg.CreateTime = tms.FormatByMill(memberById.CreateTime)
 	return &login.TokenVerifyResponse{Member: memMsg}, nil
 }
 func (ls *LoginService) MyOrgList(ctx context.Context, msg *login.UserMessage) (*login.OrgListResponse, error) {
@@ -242,6 +242,7 @@ func (ls *LoginService) MyOrgList(ctx context.Context, msg *login.UserMessage) (
 		org.Code, _ = encrypts.EncryptInt64(org.Id, model.AESKey)
 	}
 	return &login.OrgListResponse{OrganizationList: orgsMessage}, nil
+
 }
 func (ls *LoginService) FindMemInfoById(ctx context.Context, msg *login.UserMessage) (*login.MemberMessage, error) {
 	memberById, err := ls.memberRepo.FindMemberById(context.Background(), msg.MemId)
@@ -259,7 +260,7 @@ func (ls *LoginService) FindMemInfoById(ctx context.Context, msg *login.UserMess
 	}
 	if len(orgs) > 0 {
 		memMsg.OrganizationCode, _ = encrypts.EncryptInt64(orgs[0].Id, model.AESKey)
-		memMsg.CreateTime = tms.FormatByMill(memberById.CreateTime)
 	}
+	memMsg.CreateTime = tms.FormatByMill(memberById.CreateTime)
 	return memMsg, nil
 }

@@ -114,4 +114,5 @@ func (h *HandlerUser) myOrgList(c *gin.Context) {
 	var orgs []*user.OrganizationList
 	copier.Copy(&orgs, list.OrganizationList)
 	c.JSON(http.StatusOK, result.Success(orgs))
+
 }
