@@ -30,6 +30,7 @@ type ProjectService struct {
 	projectRepo            repo.ProjectRepo
 	projectTemplateRepo    repo.ProjectTemplateRepo
 	taskStagesTemplateRepo repo.TaskStagesTemplateRepo
+	taskStagesRepo         repo.TaskStagesRepo
 }
 
 func New() *ProjectService {
@@ -40,6 +41,7 @@ func New() *ProjectService {
 		projectRepo:            dao.NewProjectDao(),
 		projectTemplateRepo:    dao.NewProjectTemplateDao(),
 		taskStagesTemplateRepo: dao.NewTaskStagesTemplateDao(),
+		taskStagesRepo:         dao.NewTaskStagesDao(),
 	}
 }
 func (p *ProjectService) Index(context.Context, *project.IndexMessage) (*project.IndexResponse, error) {
@@ -159,6 +161,14 @@ func (p *ProjectService) SaveProject(ctx context.Context, msg *project.ProjectRp
 	organizationCode, _ := strconv.ParseInt(organizationCodeStr, 10, 64)
 	templateCodeStr, _ := encrypts.Decrypt(msg.TemplateCode, model.AESKey)
 	templateCode, _ := strconv.ParseInt(templateCodeStr, 10, 64)
+	// 获取模板信息
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	stageTemplateList, err := p.taskStagesTemplateRepo.FindByProjectTemplateId(c, int(templateCode))
+	if err != nil {
+		zap.L().Error("project SaveProject taskStagesTemplateRepo.FindByProjectTemplateId error", zap.Error(err))
+		return nil, errs.GrpcError(model.DbError)
+	}
 	// 1.保存项目表
 	pr := &pro.Project{
 		Name:              msg.Name,
@@ -172,7 +182,7 @@ func (p *ProjectService) SaveProject(ctx context.Context, msg *project.ProjectRp
 		AccessControlType: model.Open,
 		TaskBoardTheme:    model.Simple,
 	}
-	err := p.transaction.Action(func(conn database.DbConn) error {
+	err = p.transaction.Action(func(conn database.DbConn) error {
 		err := p.projectRepo.SaveProject(conn, ctx, pr)
 		if err != nil {
 			zap.L().Error("project SaveProject SaveProject error", zap.Error(err))
@@ -190,6 +200,22 @@ func (p *ProjectService) SaveProject(ctx context.Context, msg *project.ProjectRp
 		if err != nil {
 			zap.L().Error("project SaveProject SaveProjectMember error", zap.Error(err))
 			return errs.GrpcError(model.DbError)
+		}
+		// 生成任务步骤
+		for index, v := range stageTemplateList {
+			taskStage := &task.TaskStages{
+				Name:        v.Name,
+				Description: "",
+				Sort:        index + 1,
+				CreateTime:  time.Now().UnixMilli(),
+				ProjectCode: pr.Id,
+				Deleted:     model.NoDeleted,
+			}
+			err = p.taskStagesRepo.SaveTaskStages(ctx, conn, taskStage)
+			if err != nil {
+				zap.L().Error("project SaveProject SaveTaskStages error", zap.Error(err))
+				return errs.GrpcError(model.DbError)
+			}
 		}
 		return nil
 	})
@@ -256,4 +282,30 @@ func (p *ProjectService) UpdateDeletedProject(ctx context.Context, msg *project.
 		return nil, errs.GrpcError(model.DbError)
 	}
 	return &project.DeletedProjectResponse{}, nil
+}
+func (p *ProjectService) UpdateProject(ctx context.Context, msg *project.UpdateProjectMessage) (*project.UpdateProjectResponse, error) {
+	projectCodeStr, _ := encrypts.Decrypt(msg.ProjectCode, model.AESKey)
+	projectCode, _ := strconv.ParseInt(projectCodeStr, 10, 64)
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	proj := &pro.Project{
+		Id:                 projectCode,
+		Name:               msg.Name,
+		Description:        msg.Description,
+		Cover:              msg.Cover,
+		TaskBoardTheme:     msg.TaskBoardTheme,
+		Prefix:             msg.Prefix,
+		Private:            int(msg.Private),
+		OpenPrefix:         int(msg.OpenPrefix),
+		OpenBeginTime:      int(msg.OpenBeginTime),
+		OpenTaskPrivate:    int(msg.OpenTaskPrivate),
+		Schedule:           msg.Schedule,
+		AutoUpdateSchedule: int(msg.AutoUpdateSchedule),
+	}
+	err := p.projectRepo.UpdateProject(c, proj)
+	if err != nil {
+		zap.L().Error("project UpdateProject UpdateProject error", zap.Error(err))
+		return nil, errs.GrpcError(model.DbError)
+	}
+	return &project.UpdateProjectResponse{}, nil
 }

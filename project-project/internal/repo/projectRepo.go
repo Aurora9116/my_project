@@ -16,6 +16,7 @@ type ProjectRepo interface {
 	UpdateDeletedProject(ctx context.Context, projectCode int64, deleted bool) error
 	SaveProjectCollect(ctx context.Context, pc *pro.ProjectCollection) error
 	DeleteProjectCollect(ctx context.Context, memId int64, projectCode int64) error
+	UpdateProject(ctx context.Context, proj *pro.Project) error
 }
 type ProjectTemplateRepo interface {
 	FindProjectTemplateSystem(ctx context.Context, page int64, size int64) ([]pro.ProjectTemplate, int64, error)

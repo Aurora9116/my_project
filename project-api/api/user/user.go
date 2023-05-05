@@ -34,7 +34,6 @@ func (h *HandlerUser) getCaptcha(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, result.Success(rsp.Code))
 }
-
 func (h *HandlerUser) register(c *gin.Context) {
 	// 1.接收参数 参数模型
 	result := &common.Result{}
@@ -68,7 +67,6 @@ func (h *HandlerUser) register(c *gin.Context) {
 	// 4.返回结果
 	c.JSON(http.StatusOK, result.Success(""))
 }
-
 func (h *HandlerUser) login(c *gin.Context) {
 	// 1.接收参数 参数模型
 	result := &common.Result{}

@@ -89,3 +89,18 @@ type SaveProject struct {
 	TaskBoardTheme   string `json:"task_board_theme"`
 	OrganizationCode string `json:"organization_code"`
 }
+
+type ProjectReq struct {
+	ProjectCode        string  `json:"projectCode" form:"projectCode"`
+	Cover              string  `json:"cover" form:"cover"`
+	Name               string  `json:"name" form:"name"`
+	Description        string  `json:"description" form:"description"`
+	Schedule           float64 `json:"schedule" form:"schedule"`
+	Private            int     `json:"private" form:"private"`
+	Prefix             string  `json:"prefix" form:"prefix"`
+	OpenPrefix         int     `json:"open_prefix" form:"open_prefix"`
+	OpenBeginTime      int     `json:"open_begin_time" form:"open_begin_time"`
+	OpenTaskPrivate    int     `json:"open_task_private" form:"open_task_private"`
+	TaskBoardTheme     string  `json:"task_board_theme" form:"task_board_theme"`
+	AutoUpdateSchedule int     `json:"auto_update_schedule" form:"auto_update_schedule"`
+}

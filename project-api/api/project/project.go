@@ -28,9 +28,7 @@ func (p *HandlerProject) index(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	msg := &project.IndexMessage{}
-
 	indexResponse, err := Pro.Index(ctx, msg)
-
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Fail(code, msg))
@@ -40,7 +38,6 @@ func (p *HandlerProject) index(c *gin.Context) {
 	copier.Copy(&ms, menus)
 	c.JSON(http.StatusOK, result.Success(ms))
 }
-
 func (p *HandlerProject) myProjectList(c *gin.Context) {
 	result := &common.Result{}
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
@@ -73,7 +70,6 @@ func (p *HandlerProject) myProjectList(c *gin.Context) {
 		"total": myProjectResponse.Total,
 	}))
 }
-
 func (p *HandlerProject) projectTemplate(c *gin.Context) {
 	result := &common.Result{}
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
@@ -92,15 +88,14 @@ func (p *HandlerProject) projectTemplate(c *gin.Context) {
 		ViewType:         int32(viewType),
 		OrganizationCode: c.GetString("organizationCode"),
 	}
-	templateReponse, err := Pro.FindProjectTemplate(ctx, msg)
-	fmt.Println("templateReponse==>", templateReponse)
+	templateResponse, err := Pro.FindProjectTemplate(ctx, msg)
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Fail(code, msg))
 		return
 	}
 	var pms []*pro.ProjectTemplate
-	copier.Copy(&pms, templateReponse.Ptm)
+	copier.Copy(&pms, templateResponse.Ptm)
 	if pms == nil {
 		pms = []*pro.ProjectTemplate{}
 	}
@@ -111,7 +106,7 @@ func (p *HandlerProject) projectTemplate(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, result.Success(gin.H{
 		"list":  pms,
-		"total": templateReponse.Total,
+		"total": templateResponse.Total,
 	}))
 }
 func (p *HandlerProject) projectSave(c *gin.Context) {
@@ -140,7 +135,6 @@ func (p *HandlerProject) projectSave(c *gin.Context) {
 	copier.Copy(&rsp, saveProject)
 	c.JSON(http.StatusOK, result.Success(rsp))
 }
-
 func (p *HandlerProject) readProject(c *gin.Context) {
 	result := &common.Result{}
 	projectCode := c.PostForm("projectCode")
@@ -158,8 +152,7 @@ func (p *HandlerProject) readProject(c *gin.Context) {
 	copier.Copy(&pd, detail)
 	c.JSON(http.StatusOK, result.Success(pd))
 }
-
-func (*HandlerProject) recycleProject(c *gin.Context) {
+func (p *HandlerProject) recycleProject(c *gin.Context) {
 	result := &common.Result{}
 	projectCode := c.PostForm("projectCode")
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
@@ -172,7 +165,6 @@ func (*HandlerProject) recycleProject(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, result.Success([]int{}))
 }
-
 func (p *HandlerProject) recoveryProject(c *gin.Context) {
 	result := &common.Result{}
 	projectCode := c.PostForm("projectCode")
@@ -186,7 +178,6 @@ func (p *HandlerProject) recoveryProject(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, result.Success([]int{}))
 }
-
 func (p *HandlerProject) collectProject(c *gin.Context) {
 	result := &common.Result{}
 	projectCode := c.PostForm("projectCode")
@@ -195,6 +186,24 @@ func (p *HandlerProject) collectProject(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	_, err := Pro.UpdateCollectProject(ctx, &project.ProjectRpcMessage{ProjectCode: projectCode, CollectType: collectType, MemberId: memberId})
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Fail(code, msg))
+		return
+	}
+	c.JSON(http.StatusOK, result.Success([]int{}))
+}
+func (p *HandlerProject) editProject(c *gin.Context) {
+	result := &common.Result{}
+	var req *pro.ProjectReq
+	_ = c.ShouldBind(&req)
+	memberId := c.GetInt64("memberId")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &project.UpdateProjectMessage{}
+	msg.MemberId = memberId
+	copier.Copy(&msg, req)
+	_, err := Pro.UpdateProject(ctx, msg)
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Fail(code, msg))

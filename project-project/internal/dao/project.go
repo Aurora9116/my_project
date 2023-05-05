@@ -12,6 +12,10 @@ type ProjectDao struct {
 	conn *gorms.GormConn
 }
 
+func (p *ProjectDao) UpdateProject(ctx context.Context, proj *pro.Project) error {
+	return p.conn.Default(ctx).Updates(&proj).Error
+}
+
 func (p *ProjectDao) DeleteProjectCollect(ctx context.Context, memId int64, projectCode int64) error {
 	return p.conn.Default(ctx).Where("member_code = ? and project_code = ?", memId, projectCode).Delete(&pro.ProjectCollection{}).Error
 }

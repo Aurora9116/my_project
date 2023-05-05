@@ -10,6 +10,7 @@ import (
 	"test.com/project-common/logs"
 	"test.com/project-grpc/user/login"
 	"test.com/project-user/config"
+	"test.com/project-user/internal/interceptor"
 	loginServiceV1 "test.com/project-user/pkg/service/login.service.v1"
 )
 
@@ -55,7 +56,8 @@ func RegisterGrpc() *grpc.Server {
 			login.RegisterLoginServiceServer(g, loginServiceV1.New())
 		},
 	}
-	s := grpc.NewServer()
+	in := interceptor.New()
+	s := grpc.NewServer(in.Cache())
 	c.RegisterFunc(s)
 	lis, err := net.Listen("tcp", c.Addr)
 	if err != nil {

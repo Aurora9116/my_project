@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func (p *ProjectService) UpdateCollectProject(ctx context.Context, msg *project.ProjectRpcMessage) (*project.DeletedProjectResponse, error) {
+func (p *ProjectService) UpdateCollectProject(ctx context.Context, msg *project.ProjectRpcMessage) (*project.CollectProjectResponse, error) {
 	projectCodeStr, _ := encrypts.Decrypt(msg.ProjectCode, model.AESKey)
 	projectCode, _ := strconv.ParseInt(projectCodeStr, 10, 64)
 	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
@@ -34,5 +34,5 @@ func (p *ProjectService) UpdateCollectProject(ctx context.Context, msg *project.
 		zap.L().Error("project UpdateCollectProject SaveProjectCollect error", zap.Error(err))
 		return nil, errs.GrpcError(model.DbError)
 	}
-	return &project.DeletedProjectResponse{}, nil
+	return &project.CollectProjectResponse{}, nil
 }

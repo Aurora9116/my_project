@@ -63,3 +63,40 @@
 {"level":"ERROR","time":"2023-05-02T10:42:58.629+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
 {"level":"ERROR","time":"2023-05-02T10:43:01.639+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
 {"level":"ERROR","time":"2023-05-02T10:43:04.663+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
+{"level":"INFO","time":"2023-05-05T08:58:26.122+0800","caller":"interceptor/cache.go:45","msg":"/project.service.v1.ProjectService/FindProjectByMemId 放入缓存"}
+{"level":"INFO","time":"2023-05-05T08:58:27.767+0800","caller":"interceptor/cache.go:45","msg":"/project.service.v1.ProjectService/FindProjectByMemId 放入缓存"}
+{"level":"INFO","time":"2023-05-05T08:59:03.276+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T08:59:34.443+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"ERROR","time":"2023-05-05T09:03:51.053+0800","caller":"project.service.v1/project.service.v1.go:138","msg":"project FindProjectTemplate FindProjectTemplateSystem error","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-05-05T09:03:51.058+0800","caller":"project.service.v1/project.service.v1.go:82","msg":"project FindProjectByMemId::FindCollectProjectByMemId error","error":"context canceled"}
+{"level":"INFO","time":"2023-05-05T09:03:51.058+0800","caller":"interceptor/cache.go:45","msg":"/project.service.v1.ProjectService/FindProjectByMemId 放入缓存"}
+{"level":"ERROR","time":"2023-05-05T09:03:51.175+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"etcdserver: requested lease not found"}
+{"level":"ERROR","time":"2023-05-05T09:05:12.525+0800","caller":"project.service.v1/project.service.v1.go:144","msg":"project FindProjectTemplate FindInProTemIds error","error":"context canceled"}
+{"level":"ERROR","time":"2023-05-05T09:05:12.526+0800","caller":"project.service.v1/project.service.v1.go:82","msg":"project FindProjectByMemId::FindCollectProjectByMemId error","error":"context canceled"}
+{"level":"INFO","time":"2023-05-05T09:05:12.527+0800","caller":"interceptor/cache.go:45","msg":"/project.service.v1.ProjectService/FindProjectByMemId 放入缓存"}
+{"level":"INFO","time":"2023-05-05T09:13:41.379+0800","caller":"interceptor/cache.go:45","msg":"/project.service.v1.ProjectService/FindProjectByMemId 放入缓存"}
+{"level":"INFO","time":"2023-05-05T09:13:51.821+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:14:05.124+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:14:09.836+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:14:45.555+0800","caller":"interceptor/cache.go:45","msg":"/project.service.v1.ProjectService/FindProjectByMemId 放入缓存"}
+{"level":"INFO","time":"2023-05-05T09:14:47.403+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:14:54.390+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:14:55.423+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:15:13.856+0800","caller":"interceptor/cache.go:45","msg":"/project.service.v1.ProjectService/FindProjectByMemId 放入缓存"}
+{"level":"INFO","time":"2023-05-05T09:15:15.362+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:16:04.889+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:16:06.476+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:16:07.782+0800","caller":"interceptor/cache.go:45","msg":"/project.service.v1.ProjectService/FindProjectByMemId 放入缓存"}
+{"level":"INFO","time":"2023-05-05T09:16:08.130+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:16:09.135+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:16:10.103+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:16:10.920+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:16:16.060+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:16:17.178+0800","caller":"interceptor/cache.go:45","msg":"/project.service.v1.ProjectService/FindProjectByMemId 放入缓存"}
+{"level":"INFO","time":"2023-05-05T09:16:19.574+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:16:20.407+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:16:24.280+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:16:25.538+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:17:08.490+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"INFO","time":"2023-05-05T09:19:12.047+0800","caller":"interceptor/cache.go:45","msg":"/project.service.v1.ProjectService/FindProjectByMemId 放入缓存"}
+{"level":"INFO","time":"2023-05-05T09:19:13.739+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}

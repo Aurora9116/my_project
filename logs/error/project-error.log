@@ -44,3 +44,8 @@
 {"level":"ERROR","time":"2023-05-02T10:42:58.629+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
 {"level":"ERROR","time":"2023-05-02T10:43:01.639+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
 {"level":"ERROR","time":"2023-05-02T10:43:04.663+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-05-05T09:03:51.053+0800","caller":"project.service.v1/project.service.v1.go:138","msg":"project FindProjectTemplate FindProjectTemplateSystem error","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-05-05T09:03:51.058+0800","caller":"project.service.v1/project.service.v1.go:82","msg":"project FindProjectByMemId::FindCollectProjectByMemId error","error":"context canceled"}
+{"level":"ERROR","time":"2023-05-05T09:03:51.175+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"etcdserver: requested lease not found"}
+{"level":"ERROR","time":"2023-05-05T09:05:12.525+0800","caller":"project.service.v1/project.service.v1.go:144","msg":"project FindProjectTemplate FindInProTemIds error","error":"context canceled"}
+{"level":"ERROR","time":"2023-05-05T09:05:12.526+0800","caller":"project.service.v1/project.service.v1.go:82","msg":"project FindProjectByMemId::FindCollectProjectByMemId error","error":"context canceled"}
