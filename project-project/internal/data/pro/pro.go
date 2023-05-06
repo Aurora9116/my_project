@@ -3,7 +3,7 @@ package pro
 import (
 	encrypts "test.com/project-common/encrypts"
 	"test.com/project-common/tms"
-	"test.com/project-project/internal/data/task"
+	"test.com/project-project/internal/data"
 	"test.com/project-user/pkg/model"
 )
 
@@ -124,11 +124,11 @@ type ProjectTemplateAll struct {
 	Cover            string
 	MemberCode       string
 	IsSystem         int
-	TaskStages       []*task.TaskStagesOnlyName
+	TaskStages       []*data.TaskStagesOnlyName
 	Code             string
 }
 
-func (pt ProjectTemplate) Convert(taskStages []*task.TaskStagesOnlyName) *ProjectTemplateAll {
+func (pt ProjectTemplate) Convert(taskStages []*data.TaskStagesOnlyName) *ProjectTemplateAll {
 	organizationCode, _ := encrypts.EncryptInt64(pt.OrganizationCode, model.AESKey)
 	memberCode, _ := encrypts.EncryptInt64(pt.MemberCode, model.AESKey)
 	code, _ := encrypts.EncryptInt64(int64(pt.Id), model.AESKey)

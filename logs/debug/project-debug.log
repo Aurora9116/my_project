@@ -119,3 +119,11 @@
 {"level":"INFO","time":"2023-05-05T09:17:08.490+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
 {"level":"INFO","time":"2023-05-05T09:19:12.047+0800","caller":"interceptor/cache.go:45","msg":"/project.service.v1.ProjectService/FindProjectByMemId 放入缓存"}
 {"level":"INFO","time":"2023-05-05T09:19:13.739+0800","caller":"interceptor/cache.go:39","msg":"/project.service.v1.ProjectService/FindProjectByMemId 走了缓存"}
+{"level":"ERROR","time":"2023-05-05T22:09:43.652+0800","caller":"project.service.v1/project.service.v1.go:257","msg":"project FindProjectDetail FindCollectByPidAndMemId error","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-05-05T22:09:43.654+0800","caller":"project.service.v1/project.service.v1.go:82","msg":"project FindProjectByMemId::FindCollectProjectByMemId error","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-05-05T22:12:28.460+0800","caller":"project.service.v1/project.service.v1.go:252","msg":"project FindProjectDetail FindMemInfoById error","error":"rpc error: code = DeadlineExceeded desc = context deadline exceeded"}
+{"level":"ERROR","time":"2023-05-05T22:12:28.461+0800","caller":"task.service.v1/task_service.go:93","msg":"project MemberProjectList LoginServiceClient.FindMemInfoByIds error","error":"rpc error: code = DeadlineExceeded desc = context deadline exceeded"}
+{"level":"ERROR","time":"2023-05-06T09:25:33.565+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-05-06T09:25:36.582+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-05-06T09:25:36.586+0800","caller":"discovery/resolver.go:104","msg":"sync failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-05-06T09:25:39.596+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}

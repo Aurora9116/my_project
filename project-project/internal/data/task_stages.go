@@ -1,4 +1,4 @@
-package task
+package data
 
 type TaskStages struct {
 	Id          int    `json:"id"`
@@ -12,4 +12,12 @@ type TaskStages struct {
 
 func (*TaskStages) TableName() string {
 	return "ms_task_stages"
+}
+
+func ToTaskStagesMap(tsList []*TaskStages) map[int]*TaskStages {
+	m := make(map[int]*TaskStages)
+	for _, v := range tsList {
+		m[v.Id] = v
+	}
+	return m
 }

@@ -28,6 +28,7 @@ type LoginServiceClient interface {
 	TokenVerify(ctx context.Context, in *TokenVerifyMessage, opts ...grpc.CallOption) (*TokenVerifyResponse, error)
 	MyOrgList(ctx context.Context, in *UserMessage, opts ...grpc.CallOption) (*OrgListResponse, error)
 	FindMemInfoById(ctx context.Context, in *UserMessage, opts ...grpc.CallOption) (*MemberMessage, error)
+	FindMemInfoByIds(ctx context.Context, in *UserMessage, opts ...grpc.CallOption) (*MemberMessageList, error)
 }
 
 type loginServiceClient struct {
@@ -92,6 +93,15 @@ func (c *loginServiceClient) FindMemInfoById(ctx context.Context, in *UserMessag
 	return out, nil
 }
 
+func (c *loginServiceClient) FindMemInfoByIds(ctx context.Context, in *UserMessage, opts ...grpc.CallOption) (*MemberMessageList, error) {
+	out := new(MemberMessageList)
+	err := c.cc.Invoke(ctx, "/login.service.v1.LoginService/FindMemInfoByIds", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LoginServiceServer is the server API for LoginService service.
 // All implementations must embed UnimplementedLoginServiceServer
 // for forward compatibility
@@ -102,6 +112,7 @@ type LoginServiceServer interface {
 	TokenVerify(context.Context, *TokenVerifyMessage) (*TokenVerifyResponse, error)
 	MyOrgList(context.Context, *UserMessage) (*OrgListResponse, error)
 	FindMemInfoById(context.Context, *UserMessage) (*MemberMessage, error)
+	FindMemInfoByIds(context.Context, *UserMessage) (*MemberMessageList, error)
 	mustEmbedUnimplementedLoginServiceServer()
 }
 
@@ -126,6 +137,9 @@ func (UnimplementedLoginServiceServer) MyOrgList(context.Context, *UserMessage) 
 }
 func (UnimplementedLoginServiceServer) FindMemInfoById(context.Context, *UserMessage) (*MemberMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindMemInfoById not implemented")
+}
+func (UnimplementedLoginServiceServer) FindMemInfoByIds(context.Context, *UserMessage) (*MemberMessageList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindMemInfoByIds not implemented")
 }
 func (UnimplementedLoginServiceServer) mustEmbedUnimplementedLoginServiceServer() {}
 
@@ -248,6 +262,24 @@ func _LoginService_FindMemInfoById_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LoginService_FindMemInfoByIds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoginServiceServer).FindMemInfoByIds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/login.service.v1.LoginService/FindMemInfoByIds",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoginServiceServer).FindMemInfoByIds(ctx, req.(*UserMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // LoginService_ServiceDesc is the grpc.ServiceDesc for LoginService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -278,6 +310,10 @@ var LoginService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindMemInfoById",
 			Handler:    _LoginService_FindMemInfoById_Handler,
+		},
+		{
+			MethodName: "FindMemInfoByIds",
+			Handler:    _LoginService_FindMemInfoByIds_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

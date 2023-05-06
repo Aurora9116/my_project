@@ -9,10 +9,12 @@ import (
 	"test.com/project-common/discovery"
 	"test.com/project-common/logs"
 	"test.com/project-grpc/project"
+	"test.com/project-grpc/task"
 	"test.com/project-project/config"
 	"test.com/project-project/internal/interceptor"
 	"test.com/project-project/internal/rpc"
 	projectServiceV1 "test.com/project-project/pkg/service/project.service.v1"
+	taskServiceV1 "test.com/project-project/pkg/service/task.service.v1"
 )
 
 type Router interface {
@@ -55,6 +57,7 @@ func RegisterGrpc() *grpc.Server {
 		Addr: config.C.GC.Addr,
 		RegisterFunc: func(g *grpc.Server) {
 			project.RegisterProjectServiceServer(g, projectServiceV1.New())
+			task.RegisterTaskServiceServer(g, taskServiceV1.New())
 		},
 	}
 	s := grpc.NewServer(interceptor.New().Cache())
