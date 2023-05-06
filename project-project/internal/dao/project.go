@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"fmt"
+	"gorm.io/gorm"
 	"test.com/project-project/internal/data/pro"
 	"test.com/project-project/internal/database"
 	"test.com/project-project/internal/database/gorms"
@@ -10,6 +11,14 @@ import (
 
 type ProjectDao struct {
 	conn *gorms.GormConn
+}
+
+func (p *ProjectDao) FindProjectById(ctx context.Context, projectCode int64) (pj *pro.Project, err error) {
+	err = p.conn.Default(ctx).Where("id=?", projectCode).Find(&pj).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	return
 }
 
 func (p *ProjectDao) FindProjectMemberByPid(ctx context.Context, projectCode int64) (list []*pro.ProjectMember, total int64, err error) {

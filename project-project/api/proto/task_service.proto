@@ -75,6 +75,7 @@ message TaskMessage{
   string code = 32;
   int32 canRead = 33;
   ExecutorMessage executor = 34;
+  string projectName = 35 ;
 }
 message ExecutorMessage {
   string Name = 1;
@@ -88,5 +89,5 @@ service TaskService {
   rpc TaskStages(TaskReqMessage) returns (TaskStagesResponse){}
   rpc MemberProjectList(TaskReqMessage) returns (MemberProjectResponse){}
   rpc TaskList(TaskReqMessage) returns (TaskListResponse){}
-//  rpc SaveTask(TaskReqMessage) returns (TaskMessage){}
+  rpc SaveTask(TaskReqMessage) returns (TaskMessage){}
 }

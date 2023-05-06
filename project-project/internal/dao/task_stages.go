@@ -11,6 +11,11 @@ type TaskStagesDao struct {
 	conn *gorms.GormConn
 }
 
+func (t TaskStagesDao) FindById(ctx context.Context, id int) (ts *data.TaskStages, err error) {
+	err = t.conn.Default(ctx).Where("id=?", id).Find(&ts).Error
+	return
+}
+
 func (t TaskStagesDao) FindStagesByProjectId(ctx context.Context, projectCode int64, page, pageSize int64) (list []*data.TaskStages, total int64, err error) {
 	session := t.conn.Default(ctx)
 	err = session.Model(&data.TaskStages{}).Where("project_code=?", projectCode).Order("sort asc").Limit(int(pageSize)).Offset(int((page - 1) * pageSize)).Find(&list).Error
