@@ -12,6 +12,11 @@ message TaskReqMessage {
   string stageCode = 5;
   string name = 6;
   string assignTo = 7;
+  int32 taskType = 8;
+  int32 type = 9;
+  string preTaskCode = 10;
+  string nextTaskCode = 11;
+  string toStageCode = 12;
 }
 
 message TaskStagesMessage{
@@ -85,9 +90,13 @@ message ExecutorMessage {
 message TaskListResponse{
   repeated TaskMessage list = 1;
 }
+message TaskSortResponse{
+
+}
 service TaskService {
   rpc TaskStages(TaskReqMessage) returns (TaskStagesResponse){}
   rpc MemberProjectList(TaskReqMessage) returns (MemberProjectResponse){}
   rpc TaskList(TaskReqMessage) returns (TaskListResponse){}
   rpc SaveTask(TaskReqMessage) returns (TaskMessage){}
+  rpc TaskSort(TaskReqMessage) returns (TaskSortResponse){}
 }

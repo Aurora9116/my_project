@@ -217,7 +217,7 @@ func (t *TaskService) SaveTask(c context.Context, msg *task.TaskReqMessage) (*ta
 		StageCode:   int(stageCode),
 		IdNum:       *maxIdNum + 1,
 		Private:     project.OpenTaskPrivate,
-		Sort:        *maxSort + 1,
+		Sort:        *maxSort + 65536,
 		BeginTime:   time.Now().UnixMilli(),
 		EndTime:     time.Now().Add(2 * 24 * time.Hour).UnixMilli(),
 	}
@@ -259,4 +259,71 @@ func (t *TaskService) SaveTask(c context.Context, msg *task.TaskReqMessage) (*ta
 	tm := &task.TaskMessage{}
 	copier.Copy(tm, display)
 	return tm, nil
+}
+func (t *TaskService) TaskSort(c context.Context, msg *task.TaskReqMessage) (*task.TaskSortResponse, error) {
+	// 移动的任务id肯定有preTaskCode
+	preTaskCode := encrypts.DecryptNotErr(msg.PreTaskCode)
+	toStageCode := encrypts.DecryptNotErr(msg.ToStageCode)
+	if msg.PreTaskCode == msg.NextTaskCode {
+		return &task.TaskSortResponse{}, nil
+	}
+	err := t.sortTask(preTaskCode, msg.NextTaskCode, toStageCode)
+	if err != nil {
+		return nil, err
+	}
+	return &task.TaskSortResponse{}, nil
+}
+
+func (t *TaskService) sortTask(preTaskCode int64, nextTaskCode string, toStageCode int64) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	ts, err := t.taskRepo.FindTaskById(ctx, preTaskCode)
+	if err != nil {
+		zap.L().Error("project task TaskSort taskRepo.FindTaskById error", zap.Error(err))
+		return errs.GrpcError(model.DbError)
+	}
+	t.transaction.Action(func(conn database.DbConn) error {
+		ts.StageCode = int(toStageCode)
+
+		if nextTaskCode != "" {
+			// 意味着要进行替换
+			nextTaskCode1 := encrypts.DecryptNotErr(nextTaskCode)
+			next, err := t.taskRepo.FindTaskById(ctx, nextTaskCode1)
+			if err != nil {
+				zap.L().Error("project task TaskSort taskRepo.FindTaskById error", zap.Error(err))
+				return errs.GrpcError(model.DbError)
+			}
+			prepre, err := t.taskRepo.FindTaskByStageCodeLtSort(ctx, next.StageCode, next.Sort)
+			if err != nil {
+				zap.L().Error("project task TaskSort taskRepo.FindTaskById error", zap.Error(err))
+				return errs.GrpcError(model.DbError)
+			}
+			if prepre != nil {
+				ts.Sort = (prepre.Sort + next.Sort) / 2
+			}
+			if prepre == nil {
+				ts.Sort = 0
+			}
+			//ts.Sort, next.Sort = next.Sort, ts.Sort
+			//err = t.taskRepo.UpdateTaskSort(ctx, conn, next)
+			//if err != nil {
+			//	zap.L().Error("project task TaskSort taskRepo.UpdateTaskSort error", zap.Error(err))
+			//	return errs.GrpcError(model.DbError)
+			//}
+		} else {
+			maxSort, err := t.taskRepo.FindTaskSort(ctx, ts.ProjectCode, int64(ts.StageCode))
+			if err != nil {
+				zap.L().Error("project task TaskSort taskRepo.FindTaskById error", zap.Error(err))
+				return errs.GrpcError(model.DbError)
+			}
+			ts.Sort = *maxSort + 65536
+		}
+		err = t.taskRepo.UpdateTaskSort(ctx, conn, ts)
+		if err != nil {
+			zap.L().Error("project task TaskSort taskRepo.UpdateTaskSort error", zap.Error(err))
+			return errs.GrpcError(model.DbError)
+		}
+		return nil
+	})
+	return err
 }

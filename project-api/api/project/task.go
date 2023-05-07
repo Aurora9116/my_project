@@ -58,7 +58,6 @@ func (t *HandlerTask) taskStages(c *gin.Context) {
 		"page":  page.Page,
 	}))
 }
-
 func (t *HandlerTask) memberProject(c *gin.Context) {
 	// 校验参数
 	result := &common.Result{}
@@ -92,13 +91,12 @@ func (t *HandlerTask) memberProject(c *gin.Context) {
 		"page":  page.Page,
 	}))
 }
-
 func (t *HandlerTask) taskList(c *gin.Context) {
 	result := &common.Result{}
 	stageCode := c.PostForm("stageCode")
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	list, err := TaskServiceClient.TaskList(ctx, &task.TaskReqMessage{StageCode: stageCode})
+	list, err := TaskServiceClient.TaskList(ctx, &task.TaskReqMessage{StageCode: stageCode, MemberId: c.GetInt64("memberId")})
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Fail(code, msg))
@@ -119,7 +117,6 @@ func (t *HandlerTask) taskList(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, result.Success(taskDisplayList))
 }
-
 func (t *HandlerTask) saveTask(c *gin.Context) {
 	result := &common.Result{}
 	var req *tasks.TaskSaveReq
@@ -149,6 +146,24 @@ func (t *HandlerTask) saveTask(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, result.Success(td))
+}
+func (t *HandlerTask) taskSort(c *gin.Context) {
+	result := &common.Result{}
+	var req *tasks.TaskSortReq
+	c.ShouldBind(&req)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &task.TaskReqMessage{
+		PreTaskCode:  req.PreTaskCode,
+		NextTaskCode: req.NextTaskCode,
+		ToStageCode:  req.ToStageCode,
+	}
+	_, err := TaskServiceClient.TaskSort(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Fail(code, msg))
+	}
+	c.JSON(http.StatusOK, result.Success([]int{}))
 }
 
 func NewTask() *HandlerTask {

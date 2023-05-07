@@ -12,6 +12,27 @@ type TaskDao struct {
 	conn *gorms.GormConn
 }
 
+func (t *TaskDao) FindTaskByStageCodeLtSort(ctx context.Context, stageCode int, sort int) (ts *data.Task, err error) {
+	session := t.conn.Default(ctx)
+	err = session.Where("stage_code=? and sort < ?", stageCode, sort).Order("sort desc").Limit(1).Find(&ts).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	return
+}
+
+func (t *TaskDao) UpdateTaskSort(ctx context.Context, conn database.DbConn, ts *data.Task) error {
+	t.conn = conn.(*gorms.GormConn)
+	err := t.conn.Tx(ctx).Where("id=?", ts.Id).Select("sort", "stage_code").Updates(&ts).Error
+	return err
+}
+
+func (t *TaskDao) FindTaskById(ctx context.Context, preTaskCode int64) (ts *data.Task, err error) {
+	session := t.conn.Default(ctx)
+	err = session.Where("id=?", preTaskCode).Find(&ts).Error
+	return
+}
+
 func (t *TaskDao) SaveTaskMember(ctx context.Context, conn database.DbConn, tm *data.TaskMember) error {
 	t.conn = conn.(*gorms.GormConn)
 	err := t.conn.Tx(ctx).Save(&tm).Error
