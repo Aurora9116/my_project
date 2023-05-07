@@ -316,6 +316,10 @@ func (t *TaskService) sortTask(preTaskCode int64, nextTaskCode string, toStageCo
 				zap.L().Error("project task TaskSort taskRepo.FindTaskById error", zap.Error(err))
 				return errs.GrpcError(model.DbError)
 			}
+			if maxSort == nil {
+				a := 0
+				maxSort = &a
+			}
 			ts.Sort = *maxSort + 65536
 		}
 		err = t.taskRepo.UpdateTaskSort(ctx, conn, ts)
