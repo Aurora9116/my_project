@@ -25,4 +25,7 @@ type TaskRepo interface {
 	FindTaskById(ctx context.Context, preTaskCode int64) (ts *data.Task, err error)
 	UpdateTaskSort(ctx context.Context, conn database.DbConn, ts *data.Task) error
 	FindTaskByStageCodeLtSort(ctx context.Context, stageCode int, sort int) (ts *data.Task, err error)
+	FindTaskByAssignTo(ctx context.Context, memberId int64, done int, page int64, size int64) (tsList []*data.Task, total int64, err error)
+	FindTaskByMemberCode(ctx context.Context, memberId int64, done int, page int64, size int64) (tList []*data.Task, total int64, err error)
+	FindTaskByCreateBy(ctx context.Context, memberId int64, done int, page int64, size int64) (tList []*data.Task, total int64, err error)
 }

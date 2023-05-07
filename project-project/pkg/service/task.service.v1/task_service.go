@@ -11,7 +11,6 @@ import (
 	"test.com/project-grpc/user/login"
 	"test.com/project-project/internal/dao"
 	"test.com/project-project/internal/data"
-	"test.com/project-project/internal/data/pro"
 	"test.com/project-project/internal/database"
 	"test.com/project-project/internal/database/tran"
 	"test.com/project-project/internal/repo"
@@ -82,7 +81,7 @@ func (t *TaskService) MemberProjectList(c context.Context, msg *task.TaskReqMess
 		return &task.MemberProjectResponse{List: nil, Total: 0}, nil
 	}
 	var mIds []int64
-	pmMap := make(map[int64]*pro.ProjectMember)
+	pmMap := make(map[int64]*data.ProjectMember)
 	for _, v := range projectMember {
 		mIds = append(mIds, v.MemberCode)
 		pmMap[v.MemberCode] = v
@@ -273,7 +272,6 @@ func (t *TaskService) TaskSort(c context.Context, msg *task.TaskReqMessage) (*ta
 	}
 	return &task.TaskSortResponse{}, nil
 }
-
 func (t *TaskService) sortTask(preTaskCode int64, nextTaskCode string, toStageCode int64) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
@@ -322,6 +320,15 @@ func (t *TaskService) sortTask(preTaskCode int64, nextTaskCode string, toStageCo
 			}
 			ts.Sort = *maxSort + 65536
 		}
+		if ts.Sort < 50 {
+			// 重置排序
+			err = t.resetSort(toStageCode)
+			if err != nil {
+				zap.L().Error("project task TaskSort resetSort error", zap.Error(err))
+				return errs.GrpcError(model.DbError)
+			}
+			return t.sortTask(preTaskCode, nextTaskCode, toStageCode)
+		}
 		err = t.taskRepo.UpdateTaskSort(ctx, conn, ts)
 		if err != nil {
 			zap.L().Error("project task TaskSort taskRepo.UpdateTaskSort error", zap.Error(err))
@@ -330,4 +337,79 @@ func (t *TaskService) sortTask(preTaskCode int64, nextTaskCode string, toStageCo
 		return nil
 	})
 	return err
+}
+func (t *TaskService) resetSort(stageCode int64) error {
+	list, err := t.taskRepo.FindTaskByStageCode(context.Background(), int(stageCode))
+	if err != nil {
+		return err
+	}
+	return t.transaction.Action(func(conn database.DbConn) error {
+		iSort := 65536
+		for index, v := range list {
+			v.Sort = (index + 1) * iSort
+			err = t.taskRepo.UpdateTaskSort(context.Background(), conn, v)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+func (t *TaskService) MyTaskList(c context.Context, msg *task.TaskReqMessage) (*task.MyTaskListResponse, error) {
+	var tsList []*data.Task
+	var err error
+	var total int64
+	if msg.TaskType == 1 {
+		//我执行的
+		tsList, total, err = t.taskRepo.FindTaskByAssignTo(c, msg.MemberId, int(msg.Type), msg.Page, msg.PageSize)
+		if err != nil {
+			zap.L().Error("project task MyTaskList taskRepo.FindTaskByAssignTo error", zap.Error(err))
+			return nil, errs.GrpcError(model.DbError)
+		}
+	}
+	if msg.TaskType == 2 {
+		//我执行的
+		tsList, total, err = t.taskRepo.FindTaskByMemberCode(c, msg.MemberId, int(msg.Type), msg.Page, msg.PageSize)
+		if err != nil {
+			zap.L().Error("project task MyTaskList taskRepo.FindTaskByMemberCode error", zap.Error(err))
+			return nil, errs.GrpcError(model.DbError)
+		}
+	}
+	if msg.TaskType == 3 {
+		//我执行的
+		tsList, total, err = t.taskRepo.FindTaskByCreateBy(c, msg.MemberId, int(msg.Type), msg.Page, msg.PageSize)
+		if err != nil {
+			zap.L().Error("project task MyTaskList taskRepo.FindTaskByCreateBy error", zap.Error(err))
+			return nil, errs.GrpcError(model.DbError)
+		}
+	}
+	if tsList == nil || len(tsList) <= 0 {
+		return &task.MyTaskListResponse{List: nil, Total: 0}, nil
+	}
+	var pids []int64
+	var mids []int64
+	for _, v := range tsList {
+		pids = append(pids, v.ProjectCode)
+		mids = append(mids, v.AssignTo)
+	}
+	pList, err := t.projectRepo.FindProjectByIds(c, pids)
+	projectMap := data.ToProjectMap(pList)
+	mList, err := rpc.LoginServiceClient.FindMemInfoByIds(c, &login.UserMessage{
+		MIds: mids,
+	})
+	mMap := make(map[int64]*login.MemberMessage)
+	for _, v := range mList.List {
+		mMap[v.Id] = v
+	}
+	var mtdList []*data.MyTaskDisplay
+	for _, v := range tsList {
+		memberMessage := mMap[v.AssignTo]
+		name := memberMessage.Name
+		avatar := memberMessage.Avatar
+		mtd := v.ToMyTaskDisplay(projectMap[v.ProjectCode], name, avatar)
+		mtdList = append(mtdList, mtd)
+	}
+	var myMsgs []*task.MyTaskMessage
+	copier.Copy(&myMsgs, mtdList)
+	return &task.MyTaskListResponse{List: myMsgs, Total: total}, nil
 }

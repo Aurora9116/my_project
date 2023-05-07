@@ -20,6 +20,14 @@ func New() *HandlerUser {
 	return &HandlerUser{}
 }
 
+// GetIp 获取ip函数
+func GetIp(c *gin.Context) string {
+	ip := c.ClientIP()
+	if ip == "::1" {
+		ip = "127.0.0.1"
+	}
+	return ip
+}
 func (h *HandlerUser) getCaptcha(ctx *gin.Context) {
 	result := &common.Result{}
 	// 1. 获取参数
@@ -85,6 +93,7 @@ func (h *HandlerUser) login(c *gin.Context) {
 		c.JSON(http.StatusOK, result.Fail(http.StatusBadRequest, "copy有误"))
 		return
 	}
+	msg.Ip = GetIp(c)
 	loginRsp, err := rpc.LoginServiceClient.Login(ctx, msg)
 	if err != nil {
 		c.JSON(200, result.Fail(2001, err.Error()))

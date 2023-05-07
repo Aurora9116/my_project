@@ -12,6 +12,35 @@ type TaskDao struct {
 	conn *gorms.GormConn
 }
 
+func (t *TaskDao) FindTaskByAssignTo(ctx context.Context, memberId int64, done int, page int64, size int64) (tsList []*data.Task, total int64, err error) {
+	session := t.conn.Default(ctx)
+	err = session.Model(&data.Task{}).Where("assign_to=? and deleted=0 and done=?", memberId, done).Limit(int(size)).Offset(int((page - 1) * size)).Find(&tsList).Error
+	err = session.Model(&data.Task{}).Where("assign_to=? and deleted=0 and done=?", memberId, done).Count(&total).Error
+	return
+}
+
+func (t *TaskDao) FindTaskByMemberCode(ctx context.Context, memberId int64, done int, page int64, size int64) (tList []*data.Task, total int64, err error) {
+	session := t.conn.Default(ctx)
+	offset := (page - 1) * size
+	sql := "select a.* from ms_task a,ms_task_member b where a.id=b.task_code and member_code=? and a.deleted=0 and a.done=? limit ?,?"
+	raw := session.Model(&data.Task{}).Raw(sql, memberId, done, offset, size)
+	err = raw.Scan(&tList).Error
+	if err != nil {
+		return nil, 0, err
+	}
+	sqlCount := "select count(*) from ms_task a,ms_task_member b where a.id=b.task_code and member_code=? and a.deleted=0 and a.done=?"
+	rawCount := session.Model(&data.Task{}).Raw(sqlCount, memberId, done)
+	err = rawCount.Scan(&total).Error
+	return
+}
+
+func (t *TaskDao) FindTaskByCreateBy(ctx context.Context, memberId int64, done int, page int64, size int64) (tList []*data.Task, total int64, err error) {
+	session := t.conn.Default(ctx)
+	err = session.Model(&data.Task{}).Where("create_by=? and deleted=0 and done=?", memberId, done).Limit(int(size)).Offset(int((page - 1) * size)).Find(&tList).Error
+	err = session.Model(&data.Task{}).Where("create_by=? and deleted=0 and done=?", memberId, done).Count(&total).Error
+	return
+}
+
 func (t *TaskDao) FindTaskByStageCodeLtSort(ctx context.Context, stageCode int, sort int) (ts *data.Task, err error) {
 	session := t.conn.Default(ctx)
 	err = session.Where("stage_code=? and sort < ?", stageCode, sort).Order("sort desc").Limit(1).Find(&ts).Error

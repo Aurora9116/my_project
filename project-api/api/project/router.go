@@ -19,7 +19,6 @@ type RouterProject struct {
 func (*RouterProject) Route(r *gin.Engine) {
 	//初始化grpc的客户端连接
 	InitRpcProjectClient()
-
 	h := New()
 	group := r.Group("/project")
 	// todo bug
@@ -41,4 +40,5 @@ func (*RouterProject) Route(r *gin.Engine) {
 	group.POST("/task_stages/tasks", t.taskList)
 	group.POST("/task/save", t.saveTask)
 	group.POST("/task/sort", t.taskSort)
+	group.POST("/task/selfList", t.myTaskList)
 }

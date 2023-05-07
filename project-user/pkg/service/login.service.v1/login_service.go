@@ -182,7 +182,7 @@ func (ls *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*lo
 	memIdStr := strconv.FormatInt(mem.Id, 10)
 	exp := time.Duration(config.C.JwtConfig.AccessExp) * 3600 * 24 * time.Second
 	rExp := time.Duration(config.C.JwtConfig.RefreshExp) * 3600 * 24 * time.Second
-	token := jwts.CreateToken(memIdStr, exp, config.C.JwtConfig.AccessSecret, rExp, config.C.JwtConfig.RefreshSecret)
+	token := jwts.CreateToken(memIdStr, exp, config.C.JwtConfig.AccessSecret, rExp, config.C.JwtConfig.RefreshSecret, msg.Ip)
 	tokenList := &login.TokenMessage{
 		AccessToken:    token.AccessToken,
 		RefreshToken:   token.RefreshToken,
@@ -202,7 +202,7 @@ func (ls *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*lo
 		TokenList:        tokenList,
 	}, nil
 }
-func (ls *LoginService) TokenVerify(ctx context.Context, msg *login.TokenVerifyMessage) (*login.TokenVerifyResponse, error) {
+func (ls *LoginService) TokenVerify(ctx context.Context, msg *login.LoginMessage) (*login.LoginResponse, error) {
 	token := msg.Token
 	if strings.Contains(token, "Bearer") {
 		token = strings.ReplaceAll(token, "Bearer ", "")
@@ -210,7 +210,7 @@ func (ls *LoginService) TokenVerify(ctx context.Context, msg *login.TokenVerifyM
 	if strings.Contains(token, "bearer") {
 		token = strings.ReplaceAll(token, "bearer ", "")
 	}
-	parseToken, err := jwts.ParseToken(token, config.C.JwtConfig.AccessSecret)
+	parseToken, err := jwts.ParseToken(token, config.C.JwtConfig.AccessSecret, msg.Ip)
 	if err != nil {
 		log.Println("jwt ParseToken error:", err)
 		zap.L().Error("Login TokenVerify error", zap.Error(err))
@@ -249,7 +249,7 @@ func (ls *LoginService) TokenVerify(ctx context.Context, msg *login.TokenVerifyM
 		memMsg.OrganizationCode, _ = encrypts.EncryptInt64(orgs[0].Id, model.AESKey)
 	}
 	memMsg.CreateTime = tms.FormatByMill(memberById.CreateTime)
-	return &login.TokenVerifyResponse{Member: memMsg}, nil
+	return &login.LoginResponse{Member: memMsg}, nil
 }
 func (ls *LoginService) MyOrgList(ctx context.Context, msg *login.UserMessage) (*login.OrgListResponse, error) {
 	memId := msg.MemId

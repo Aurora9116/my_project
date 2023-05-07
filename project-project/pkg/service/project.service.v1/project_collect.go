@@ -7,7 +7,7 @@ import (
 	"test.com/project-common/encrypts"
 	"test.com/project-common/errs"
 	"test.com/project-grpc/project"
-	"test.com/project-project/internal/data/pro"
+	"test.com/project-project/internal/data"
 	"test.com/project-project/pkg/model"
 	"time"
 )
@@ -19,7 +19,7 @@ func (p *ProjectService) UpdateCollectProject(ctx context.Context, msg *project.
 	defer cancel()
 	var err error
 	if msg.CollectType == "collect" {
-		pc := &pro.ProjectCollection{
+		pc := &data.ProjectCollection{
 			ProjectCode: projectCode,
 			MemberCode:  msg.MemberId,
 			CreateTime:  time.Now().UnixMilli(),

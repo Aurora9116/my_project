@@ -25,7 +25,7 @@ type LoginServiceClient interface {
 	GetCaptcha(ctx context.Context, in *CaptchaMessage, opts ...grpc.CallOption) (*CaptchaResponse, error)
 	Register(ctx context.Context, in *RegisterMessage, opts ...grpc.CallOption) (*RegisterRequest, error)
 	Login(ctx context.Context, in *LoginMessage, opts ...grpc.CallOption) (*LoginResponse, error)
-	TokenVerify(ctx context.Context, in *TokenVerifyMessage, opts ...grpc.CallOption) (*TokenVerifyResponse, error)
+	TokenVerify(ctx context.Context, in *LoginMessage, opts ...grpc.CallOption) (*LoginResponse, error)
 	MyOrgList(ctx context.Context, in *UserMessage, opts ...grpc.CallOption) (*OrgListResponse, error)
 	FindMemInfoById(ctx context.Context, in *UserMessage, opts ...grpc.CallOption) (*MemberMessage, error)
 	FindMemInfoByIds(ctx context.Context, in *UserMessage, opts ...grpc.CallOption) (*MemberMessageList, error)
@@ -66,8 +66,8 @@ func (c *loginServiceClient) Login(ctx context.Context, in *LoginMessage, opts .
 	return out, nil
 }
 
-func (c *loginServiceClient) TokenVerify(ctx context.Context, in *TokenVerifyMessage, opts ...grpc.CallOption) (*TokenVerifyResponse, error) {
-	out := new(TokenVerifyResponse)
+func (c *loginServiceClient) TokenVerify(ctx context.Context, in *LoginMessage, opts ...grpc.CallOption) (*LoginResponse, error) {
+	out := new(LoginResponse)
 	err := c.cc.Invoke(ctx, "/login.service.v1.LoginService/TokenVerify", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ type LoginServiceServer interface {
 	GetCaptcha(context.Context, *CaptchaMessage) (*CaptchaResponse, error)
 	Register(context.Context, *RegisterMessage) (*RegisterRequest, error)
 	Login(context.Context, *LoginMessage) (*LoginResponse, error)
-	TokenVerify(context.Context, *TokenVerifyMessage) (*TokenVerifyResponse, error)
+	TokenVerify(context.Context, *LoginMessage) (*LoginResponse, error)
 	MyOrgList(context.Context, *UserMessage) (*OrgListResponse, error)
 	FindMemInfoById(context.Context, *UserMessage) (*MemberMessage, error)
 	FindMemInfoByIds(context.Context, *UserMessage) (*MemberMessageList, error)
@@ -129,7 +129,7 @@ func (UnimplementedLoginServiceServer) Register(context.Context, *RegisterMessag
 func (UnimplementedLoginServiceServer) Login(context.Context, *LoginMessage) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedLoginServiceServer) TokenVerify(context.Context, *TokenVerifyMessage) (*TokenVerifyResponse, error) {
+func (UnimplementedLoginServiceServer) TokenVerify(context.Context, *LoginMessage) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TokenVerify not implemented")
 }
 func (UnimplementedLoginServiceServer) MyOrgList(context.Context, *UserMessage) (*OrgListResponse, error) {
@@ -209,7 +209,7 @@ func _LoginService_Login_Handler(srv interface{}, ctx context.Context, dec func(
 }
 
 func _LoginService_TokenVerify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TokenVerifyMessage)
+	in := new(LoginMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -221,7 +221,7 @@ func _LoginService_TokenVerify_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: "/login.service.v1.LoginService/TokenVerify",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LoginServiceServer).TokenVerify(ctx, req.(*TokenVerifyMessage))
+		return srv.(LoginServiceServer).TokenVerify(ctx, req.(*LoginMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }

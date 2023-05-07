@@ -24,6 +24,8 @@ message RegisterRequest {}
 message LoginMessage {
   string account = 1;
   string password = 2;
+  string token = 3;
+  string ip = 4;
 }
 message LoginResponse{
   MemberMessage member = 1;
@@ -74,12 +76,12 @@ message TokenMessage{
   string tokenType = 3;
   int64 accessTokenExp = 4;
 }
-message TokenVerifyMessage{
-  string token = 1;
-}
-message TokenVerifyResponse{
-  MemberMessage member = 1;
-}
+//message TokenVerifyMessage{
+//  string token = 1;
+//}
+//message TokenVerifyResponse{
+//  MemberMessage member = 1;
+//}
 
 message UserMessage{
   int64 memId = 1;
@@ -93,7 +95,7 @@ service LoginService {
   rpc GetCaptcha(CaptchaMessage) returns (CaptchaResponse) {}
   rpc Register(RegisterMessage) returns (RegisterRequest) {}
   rpc Login(LoginMessage) returns (LoginResponse) {}
-  rpc TokenVerify(TokenVerifyMessage) returns (TokenVerifyResponse) {}
+  rpc TokenVerify(LoginMessage) returns (LoginResponse) {}
   rpc MyOrgList(UserMessage) returns (OrgListResponse) {}
   rpc FindMemInfoById(UserMessage) returns (MemberMessage) {}
   rpc FindMemInfoByIds(UserMessage) returns (MemberMessageList) {}
