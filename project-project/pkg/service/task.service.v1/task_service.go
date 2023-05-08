@@ -392,11 +392,25 @@ func (t *TaskService) MyTaskList(c context.Context, msg *task.TaskReqMessage) (*
 		pids = append(pids, v.ProjectCode)
 		mids = append(mids, v.AssignTo)
 	}
-	pList, err := t.projectRepo.FindProjectByIds(c, pids)
+	pListChan := make(chan []*data.Project)
+	defer close(pListChan)
+	mListChan := make(chan *login.MemberMessageList)
+	defer close(mListChan)
+	// 1.
+	go func() {
+		pList, _ := t.projectRepo.FindProjectByIds(c, pids)
+		pListChan <- pList
+	}()
+	// 2. 1,2这两个请求毫无关联性 go+channel优化
+	go func() {
+		mList, _ := rpc.LoginServiceClient.FindMemInfoByIds(c, &login.UserMessage{
+			MIds: mids,
+		})
+		mListChan <- mList
+	}()
+	pList := <-pListChan
 	projectMap := data.ToProjectMap(pList)
-	mList, err := rpc.LoginServiceClient.FindMemInfoByIds(c, &login.UserMessage{
-		MIds: mids,
-	})
+	mList := <-mListChan
 	mMap := make(map[int64]*login.MemberMessage)
 	for _, v := range mList.List {
 		mMap[v.Id] = v
@@ -412,4 +426,48 @@ func (t *TaskService) MyTaskList(c context.Context, msg *task.TaskReqMessage) (*
 	var myMsgs []*task.MyTaskMessage
 	copier.Copy(&myMsgs, mtdList)
 	return &task.MyTaskListResponse{List: myMsgs, Total: total}, nil
+}
+func (t *TaskService) ReadTask(c context.Context, msg *task.TaskReqMessage) (*task.TaskMessage, error) {
+	taskCode := encrypts.DecryptNotErr(msg.TaskCode)
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	taskInfo, err := t.taskRepo.FindTaskById(c, taskCode)
+	if err != nil {
+		zap.L().Error("project task ReadTask taskRepo FindTaskById error", zap.Error(err))
+		return nil, errs.GrpcError(model.DbError)
+	}
+	if taskInfo == nil {
+		return &task.TaskMessage{}, nil
+	}
+	display := taskInfo.ToTaskDisplay()
+	if taskInfo.Private == 1 {
+		//代表隐私模式
+		taskMember, err := t.taskRepo.FindTaskMemberByTaskId(c, taskInfo.Id, msg.MemberId)
+		if err != nil {
+			zap.L().Error("project task TaskList taskRepo.FindTaskMemberByTaskId error", zap.Error(err))
+			return nil, errs.GrpcError(model.DbError)
+		}
+		if taskMember != nil {
+			display.CanRead = model.CanRead
+		} else {
+			display.CanRead = model.NoCanRead
+		}
+	}
+	pj, err := t.projectRepo.FindProjectById(c, taskInfo.ProjectCode)
+	display.ProjectName = pj.Name
+	taskStages, err := t.taskStagesRepo.FindById(c, taskInfo.StageCode)
+	display.StageName = taskStages.Name
+	memberMessage, err := rpc.LoginServiceClient.FindMemInfoById(c, &login.UserMessage{MemId: taskInfo.AssignTo})
+	if err != nil {
+		zap.L().Error("project task TaskList LoginServiceClient.FindMemInfoById error", zap.Error(err))
+		return nil, err
+	}
+	e := data.Executor{
+		Name:   memberMessage.Name,
+		Avatar: memberMessage.Avatar,
+	}
+	display.Executor = e
+	var taskMessage = &task.TaskMessage{}
+	copier.Copy(taskMessage, display)
+	return taskMessage, nil
 }
