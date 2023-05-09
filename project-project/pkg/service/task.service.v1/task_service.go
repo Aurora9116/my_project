@@ -28,6 +28,8 @@ type TaskService struct {
 	taskStagesTemplateRepo repo.TaskStagesTemplateRepo
 	taskStagesRepo         repo.TaskStagesRepo
 	taskRepo               repo.TaskRepo
+	projectLogRepo         repo.ProjectLogRepo
+	taskWorkTimeRepo       repo.TaskWorkTimeRepo
 }
 
 func New() *TaskService {
@@ -39,6 +41,8 @@ func New() *TaskService {
 		taskStagesTemplateRepo: dao.NewTaskStagesTemplateDao(),
 		taskStagesRepo:         dao.NewTaskStagesDao(),
 		taskRepo:               dao.NewTaskDao(),
+		projectLogRepo:         dao.NewProjectLogDao(),
+		taskWorkTimeRepo:       dao.NewTaskWorkTimeDao(),
 	}
 }
 func (t *TaskService) TaskStages(c context.Context, msg *task.TaskReqMessage) (*task.TaskStagesResponse, error) {
@@ -255,9 +259,30 @@ func (t *TaskService) SaveTask(c context.Context, msg *task.TaskReqMessage) (*ta
 		Avatar: member.Avatar,
 		Code:   member.Code,
 	}
+	createProjectLog(t.projectLogRepo, ts.ProjectCode, ts.Id, ts.Name, ts.AssignTo, "create", "task")
 	tm := &task.TaskMessage{}
 	copier.Copy(tm, display)
 	return tm, nil
+}
+func createProjectLog(logRepo repo.ProjectLogRepo, projectCode int64, taskCode int64, taskName string, toMemberCode int64, logType string, actionType string) {
+	remark := ""
+	if logType == "create" {
+		remark = "创建了任务"
+	}
+	pl := &data.ProjectLog{
+		MemberCode:  toMemberCode,
+		SourceCode:  taskCode,
+		Content:     taskName,
+		Remark:      remark,
+		ProjectCode: projectCode,
+		CreateTime:  time.Now().UnixMilli(),
+		Type:        logType,
+		ActionType:  actionType,
+		Icon:        "plus",
+		IsComment:   0,
+		IsRobot:     0,
+	}
+	logRepo.SaveProjectLog(pl)
 }
 func (t *TaskService) TaskSort(c context.Context, msg *task.TaskReqMessage) (*task.TaskSortResponse, error) {
 	// 移动的任务id肯定有preTaskCode
@@ -427,7 +452,7 @@ func (t *TaskService) MyTaskList(c context.Context, msg *task.TaskReqMessage) (*
 	copier.Copy(&myMsgs, mtdList)
 	return &task.MyTaskListResponse{List: myMsgs, Total: total}, nil
 }
-func (t *TaskService) ReadTask(c context.Context, msg *task.TaskReqMessage) (*task.TaskMessage, error) {
+func (t *TaskService) ReadTask(ctx context.Context, msg *task.TaskReqMessage) (*task.TaskMessage, error) {
 	taskCode := encrypts.DecryptNotErr(msg.TaskCode)
 	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
@@ -467,7 +492,144 @@ func (t *TaskService) ReadTask(c context.Context, msg *task.TaskReqMessage) (*ta
 		Avatar: memberMessage.Avatar,
 	}
 	display.Executor = e
+
 	var taskMessage = &task.TaskMessage{}
 	copier.Copy(taskMessage, display)
 	return taskMessage, nil
+}
+func (t *TaskService) ListTaskMember(ctx context.Context, msg *task.TaskReqMessage) (*task.TaskMemberList, error) {
+	taskCode := encrypts.DecryptNotErr(msg.TaskCode)
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	taskMemberPage, total, err := t.taskRepo.FindTaskMemberPage(c, taskCode, msg.Page, msg.PageSize)
+	if err != nil {
+		zap.L().Error("project task TaskList taskRepo.FindTaskMemberPage error", zap.Error(err))
+		return nil, errs.GrpcError(model.DbError)
+	}
+	var mids []int64
+	for _, v := range taskMemberPage {
+		mids = append(mids, v.MemberCode)
+	}
+	messageList, err := rpc.LoginServiceClient.FindMemInfoByIds(c, &login.UserMessage{MIds: mids})
+	mMap := make(map[int64]*login.MemberMessage, len(messageList.List))
+	for _, v := range messageList.List {
+		mMap[v.Id] = v
+	}
+	var taskMemeberMemssages []*task.TaskMemberMessage
+	for _, v := range taskMemberPage {
+		tm := &task.TaskMemberMessage{}
+		tm.Code = encrypts.EncryptNoErr(v.MemberCode)
+		tm.Id = v.Id
+		message := mMap[v.MemberCode]
+		tm.Name = message.Name
+		tm.Avatar = message.Avatar
+		tm.IsExecutor = int32(v.IsExecutor)
+		tm.IsOwner = int32(v.IsOwner)
+		taskMemeberMemssages = append(taskMemeberMemssages, tm)
+	}
+	return &task.TaskMemberList{List: taskMemeberMemssages, Total: total}, nil
+
+}
+func (t *TaskService) TaskLog(ctx context.Context, msg *task.TaskReqMessage) (*task.TaskLogList, error) {
+	taskCode := encrypts.DecryptNotErr(msg.TaskCode)
+	all := msg.All
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	var list []*data.ProjectLog
+	var total int64
+	var err error
+	if all == 1 {
+		//显示全部
+		list, total, err = t.projectLogRepo.FindLogByTaskCode(c, taskCode, int(msg.Comment))
+	}
+	if all == 0 {
+		//分页
+		list, total, err = t.projectLogRepo.FindLogByTaskCodePage(c, taskCode, int(msg.Comment), int(msg.Page), int(msg.PageSize))
+	}
+	if err != nil {
+		zap.L().Error("project task TaskLog projectLogRepo.FindLogByTaskCodePage error", zap.Error(err))
+		return nil, errs.GrpcError(model.DbError)
+	}
+	if total == 0 {
+		return &task.TaskLogList{}, nil
+	}
+	var displayList []*data.ProjectLogDisplay
+	var mIdList []int64
+	for _, v := range list {
+		mIdList = append(mIdList, v.MemberCode)
+	}
+	messageList, err := rpc.LoginServiceClient.FindMemInfoByIds(c, &login.UserMessage{MIds: mIdList})
+	mMap := make(map[int64]*login.MemberMessage)
+	for _, v := range messageList.List {
+		mMap[v.Id] = v
+	}
+	for _, v := range list {
+		display := v.ToDisplay()
+		message := mMap[v.MemberCode]
+		m := data.Member{}
+		m.Name = message.Name
+		m.Id = message.Id
+		m.Avatar = message.Avatar
+		m.Code = message.Code
+		display.Member = m
+		displayList = append(displayList, display)
+	}
+	var l []*task.TaskLog
+	copier.Copy(&l, displayList)
+	return &task.TaskLogList{List: l, Total: total}, nil
+}
+func (t *TaskService) TaskWorkTimeList(ctx context.Context, msg *task.TaskReqMessage) (*task.TaskWorkTimeResponse, error) {
+	taskCode := encrypts.DecryptNotErr(msg.TaskCode)
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	var list []*data.TaskWorkTime
+	var err error
+	list, err = t.taskWorkTimeRepo.FindWorkTimeList(c, taskCode)
+	if err != nil {
+		zap.L().Error("project task TaskWorkTimeList taskWorkTimeRepo.FindWorkTimeList error", zap.Error(err))
+		return nil, errs.GrpcError(model.DbError)
+	}
+	if len(list) == 0 {
+		return &task.TaskWorkTimeResponse{}, nil
+	}
+	var displayList []*data.TaskWorkTimeDisplay
+	var mIdList []int64
+	for _, v := range list {
+		mIdList = append(mIdList, v.MemberCode)
+	}
+	messageList, err := rpc.LoginServiceClient.FindMemInfoByIds(c, &login.UserMessage{MIds: mIdList})
+	mMap := make(map[int64]*login.MemberMessage)
+	for _, v := range messageList.List {
+		mMap[v.Id] = v
+	}
+	for _, v := range list {
+		display := v.ToDisplay()
+		message := mMap[v.MemberCode]
+		m := data.Member{}
+		m.Name = message.Name
+		m.Id = message.Id
+		m.Avatar = message.Avatar
+		m.Code = message.Code
+		display.Member = m
+		displayList = append(displayList, display)
+	}
+	var l []*task.TaskWorkTime
+	copier.Copy(&l, displayList)
+	return &task.TaskWorkTimeResponse{List: l, Total: int64(len(l))}, nil
+}
+func (t *TaskService) SaveTaskWorkTime(ctx context.Context, msg *task.TaskReqMessage) (*task.SaveTaskWorkTimeResponse, error) {
+	tmt := &data.TaskWorkTime{}
+	tmt.BeginTime = msg.BeginTime
+	tmt.Num = int(msg.Num)
+	tmt.Content = msg.Content
+	tmt.TaskCode = encrypts.DecryptNotErr(msg.TaskCode)
+	tmt.MemberCode = msg.MemberId
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	err := t.taskWorkTimeRepo.Save(c, tmt)
+	if err != nil {
+		zap.L().Error("project task SaveTaskWorkTime taskWorkTimeRepo.Save error", zap.Error(err))
+		return nil, errs.GrpcError(model.DbError)
+	}
+	return &task.SaveTaskWorkTimeResponse{}, nil
 }
