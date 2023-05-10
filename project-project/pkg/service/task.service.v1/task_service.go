@@ -30,6 +30,8 @@ type TaskService struct {
 	taskRepo               repo.TaskRepo
 	projectLogRepo         repo.ProjectLogRepo
 	taskWorkTimeRepo       repo.TaskWorkTimeRepo
+	fileRepo               repo.FileRepo
+	sourceLinkRepo         repo.SourceLinkRepo
 }
 
 func New() *TaskService {
@@ -43,6 +45,8 @@ func New() *TaskService {
 		taskRepo:               dao.NewTaskDao(),
 		projectLogRepo:         dao.NewProjectLogDao(),
 		taskWorkTimeRepo:       dao.NewTaskWorkTimeDao(),
+		fileRepo:               dao.NewFileDao(),
+		sourceLinkRepo:         dao.NewSourceLinkDao(),
 	}
 }
 func (t *TaskService) TaskStages(c context.Context, msg *task.TaskReqMessage) (*task.TaskStagesResponse, error) {
@@ -632,4 +636,103 @@ func (t *TaskService) SaveTaskWorkTime(ctx context.Context, msg *task.TaskReqMes
 		return nil, errs.GrpcError(model.DbError)
 	}
 	return &task.SaveTaskWorkTimeResponse{}, nil
+}
+func (t *TaskService) SaveTaskFile(ctx context.Context, msg *task.TaskFileReqMessage) (*task.TaskFileResponse, error) {
+	taskCode := encrypts.DecryptNotErr(msg.TaskCode)
+	//存file表
+	f := &data.File{
+		PathName:         msg.PathName,
+		Title:            msg.FileName,
+		Extension:        msg.Extension,
+		Size:             int(msg.Size),
+		ObjectType:       "",
+		OrganizationCode: encrypts.DecryptNotErr(msg.OrganizationCode),
+		TaskCode:         encrypts.DecryptNotErr(msg.TaskCode),
+		ProjectCode:      encrypts.DecryptNotErr(msg.ProjectCode),
+		CreateBy:         msg.MemberId,
+		CreateTime:       time.Now().UnixMilli(),
+		Downloads:        0,
+		Extra:            "",
+		Deleted:          model.NoDeleted,
+		FileType:         msg.FileType,
+		FileUrl:          msg.FileUrl,
+		DeletedTime:      0,
+	}
+	err := t.fileRepo.Save(context.Background(), f)
+	if err != nil {
+		zap.L().Error("project task SaveTaskFile fileRepo.Save error", zap.Error(err))
+		return nil, errs.GrpcError(model.DbError)
+	}
+	//存入source_link
+	sl := &data.SourceLink{
+		SourceType:       "file",
+		SourceCode:       f.Id,
+		LinkType:         "task",
+		LinkCode:         taskCode,
+		OrganizationCode: encrypts.DecryptNotErr(msg.OrganizationCode),
+		CreateBy:         msg.MemberId,
+		CreateTime:       time.Now().UnixMilli(),
+		Sort:             0,
+	}
+	err = t.sourceLinkRepo.Save(context.Background(), sl)
+	if err != nil {
+		zap.L().Error("project task SaveTaskFile sourceLinkRepo.Save error", zap.Error(err))
+		return nil, errs.GrpcError(model.DbError)
+	}
+	return &task.TaskFileResponse{}, nil
+}
+func (t *TaskService) TaskSources(ctx context.Context, msg *task.TaskReqMessage) (*task.TaskSourceResponse, error) {
+	taskCode := encrypts.DecryptNotErr(msg.TaskCode)
+	sourceLinks, err := t.sourceLinkRepo.FindByTaskCode(context.Background(), taskCode)
+	if err != nil {
+		zap.L().Error("project task SaveTaskFile sourceLinkRepo.FindByTaskCode error", zap.Error(err))
+		return nil, errs.GrpcError(model.DbError)
+	}
+	if len(sourceLinks) == 0 {
+		return &task.TaskSourceResponse{}, nil
+	}
+	var fIdList []int64
+	for _, v := range sourceLinks {
+		fIdList = append(fIdList, v.SourceCode)
+	}
+	files, err := t.fileRepo.FindByIds(context.Background(), fIdList)
+	if err != nil {
+		zap.L().Error("project task SaveTaskFile fileRepo.FindByIds error", zap.Error(err))
+		return nil, errs.GrpcError(model.DbError)
+	}
+	fMap := make(map[int64]*data.File)
+	for _, v := range files {
+		fMap[v.Id] = v
+	}
+	var list []*data.SourceLinkDisplay
+	for _, v := range sourceLinks {
+		list = append(list, v.ToDisplay(fMap[v.SourceCode]))
+	}
+	var slMsg []*task.TaskSourceMessage
+	copier.Copy(&slMsg, list)
+	return &task.TaskSourceResponse{List: slMsg}, nil
+}
+func (t *TaskService) CreateComment(ctx context.Context, msg *task.TaskReqMessage) (*task.CreateCommentResponse, error) {
+	taskCode := encrypts.DecryptNotErr(msg.TaskCode)
+	taskById, err := t.taskRepo.FindTaskById(context.Background(), taskCode)
+	if err != nil {
+		zap.L().Error("project task CreateComment fileRepo.FindTaskById error", zap.Error(err))
+		return nil, errs.GrpcError(model.DbError)
+	}
+	pl := &data.ProjectLog{
+		MemberCode:   msg.MemberId,
+		Content:      msg.CommentContent,
+		Remark:       msg.CommentContent,
+		Type:         "createComment",
+		CreateTime:   time.Now().UnixMilli(),
+		SourceCode:   taskCode,
+		ActionType:   "task",
+		ToMemberCode: 0,
+		IsComment:    model.Comment,
+		ProjectCode:  taskById.ProjectCode,
+		Icon:         "plus",
+		IsRobot:      0,
+	}
+	t.projectLogRepo.SaveProjectLog(pl)
+	return &task.CreateCommentResponse{}, nil
 }
