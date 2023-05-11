@@ -53,3 +53,25 @@ func (l *ProjectLog) ToDisplay() *ProjectLogDisplay {
 	pd.SourceCode = encrypts.EncryptNoErr(l.SourceCode)
 	return pd
 }
+
+type IndexProjectLogDisplay struct {
+	Content      string
+	Remark       string
+	CreateTime   string
+	SourceCode   string
+	IsComment    int
+	ProjectCode  string
+	MemberAvatar string
+	MemberName   string
+	ProjectName  string
+	TaskName     string
+}
+
+func (l *ProjectLog) ToIndexDisplay() *IndexProjectLogDisplay {
+	pd := &IndexProjectLogDisplay{}
+	copier.Copy(pd, l)
+	pd.ProjectCode = encrypts.EncryptNoErr(l.ProjectCode)
+	pd.CreateTime = tms.FormatByMill(l.CreateTime)
+	pd.SourceCode = encrypts.EncryptNoErr(l.SourceCode)
+	return pd
+}
