@@ -156,3 +156,4 @@
 {"level":"ERROR","time":"2023-05-10T16:28:40.194+0800","caller":"discovery/resolver.go:104","msg":"sync failed","error":"context deadline exceeded"}
 {"level":"ERROR","time":"2023-05-10T16:28:42.889+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
 {"level":"ERROR","time":"2023-05-10T16:28:46.076+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}
+{"level":"ERROR","time":"2023-05-12T13:41:59.737+0800","caller":"discovery/discovery.go:118","msg":"register failed","error":"context deadline exceeded"}

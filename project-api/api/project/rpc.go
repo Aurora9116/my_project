@@ -8,12 +8,16 @@ import (
 	"test.com/project-api/config"
 	"test.com/project-common/discovery"
 	"test.com/project-common/logs"
+	"test.com/project-grpc/account"
+	"test.com/project-grpc/department"
 	"test.com/project-grpc/project"
 	"test.com/project-grpc/task"
 )
 
 var Pro project.ProjectServiceClient
 var TaskServiceClient task.TaskServiceClient
+var AccountService account.AccountServiceClient
+var DepartmentServiceClient department.DepartmentServiceClient
 
 func InitRpcProjectClient() {
 	etcdRegister := discovery.NewResolver(config.C.EtcdConfig.Addrs, logs.LG)
@@ -24,4 +28,6 @@ func InitRpcProjectClient() {
 	}
 	Pro = project.NewProjectServiceClient(conn)
 	TaskServiceClient = task.NewTaskServiceClient(conn)
+	AccountService = account.NewAccountServiceClient(conn)
+	DepartmentServiceClient = department.NewDepartmentServiceClient(conn)
 }

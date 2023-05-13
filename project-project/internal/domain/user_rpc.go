@@ -26,3 +26,10 @@ func (d *UserRpcDomain) MemberList(mIdList []int64) ([]*login.MemberMessage, map
 	}
 	return messageList.List, mMap, err
 }
+
+func (d *UserRpcDomain) MemberInfo(ctx context.Context, memberCode int64) (*login.MemberMessage, error) {
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	memberMassage, err := d.lc.FindMemInfoById(c, &login.UserMessage{MemId: memberCode})
+	return memberMassage, err
+}

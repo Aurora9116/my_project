@@ -13,12 +13,12 @@ func main() {
 
 	router.InitRouter(r)
 
+	// 初始化rpc调用
+	router.InitUserRpc()
 	gc := router.RegisterGrpc()
 	router.RegisterEtcdServer()
 	var stop = func() {
 		gc.Stop()
 	}
-	// 初始化rpc调用
-	router.InitUserRpc()
 	srv.Run(r, config.C.SC.Name, config.C.SC.Addr, stop)
 }

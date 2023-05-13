@@ -205,7 +205,6 @@ func (t *HandlerTask) myTaskList(c *gin.Context) {
 		"total": myTaskListResponse.Total,
 	}))
 }
-
 func (t *HandlerTask) readTask(c *gin.Context) {
 	result := &common.Result{}
 	taskCode := c.PostForm("taskCode")
@@ -232,7 +231,6 @@ func (t *HandlerTask) readTask(c *gin.Context) {
 	}
 	c.JSON(200, result.Success(td))
 }
-
 func (t *HandlerTask) listTaskMember(c *gin.Context) {
 	result := &common.Result{}
 	taskCode := c.PostForm("taskCode")
@@ -262,7 +260,6 @@ func (t *HandlerTask) listTaskMember(c *gin.Context) {
 		"page":  page.Page,
 	}))
 }
-
 func (t *HandlerTask) taskLog(c *gin.Context) {
 	result := &common.Result{}
 	var req *model.TaskLogReq
@@ -299,7 +296,6 @@ func (t *HandlerTask) taskLog(c *gin.Context) {
 		"page":  req.Page,
 	}))
 }
-
 func (t *HandlerTask) taskWorkTimeList(c *gin.Context) {
 	taskCode := c.PostForm("taskCode")
 	result := &common.Result{}
@@ -321,7 +317,6 @@ func (t *HandlerTask) taskWorkTimeList(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, result.Success(tms))
 }
-
 func (t *HandlerTask) saveTaskWorkTime(c *gin.Context) {
 	result := &common.Result{}
 	var req *model.SaveTaskWorkTimeReq
@@ -342,7 +337,6 @@ func (t *HandlerTask) saveTaskWorkTime(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, result.Success([]int{}))
 }
-
 func (t *HandlerTask) uploadFiles(c *gin.Context) {
 	result := &common.Result{}
 	req := model.UploadFileReq{}
@@ -431,7 +425,6 @@ func (t *HandlerTask) uploadFiles(c *gin.Context) {
 	}))
 	return
 }
-
 func (t *HandlerTask) taskSources(c *gin.Context) {
 	result := &common.Result{}
 	taskCode := c.PostForm("taskCode")
@@ -449,7 +442,6 @@ func (t *HandlerTask) taskSources(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, result.Success(slList))
 }
-
 func (t *HandlerTask) createComment(c *gin.Context) {
 	result := &common.Result{}
 	req := model.CommentReq{}
