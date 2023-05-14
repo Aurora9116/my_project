@@ -20,10 +20,14 @@ func NewDepartmentDomain() *DepartmentDomain {
 	}
 }
 
-func (d *DepartmentDomain) FindDepartmentById(id int64) (*data.Department, error) {
+func (d *DepartmentDomain) FindDepartmentById(id int64) (*data.Department, *errs.BError) {
 	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	return d.departmentRepo.FindDepartmentById(c, id)
+	department, err := d.departmentRepo.FindDepartmentById(c, id)
+	if err != nil {
+		return nil, model.DbError
+	}
+	return department, nil
 }
 
 func (d *DepartmentDomain) Save(

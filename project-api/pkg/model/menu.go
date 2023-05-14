@@ -1,4 +1,4 @@
-package menu
+package model
 
 type Menu struct {
 	Id         int64   `json:"id"`

@@ -6,18 +6,31 @@ import (
 	"test.com/project-project/internal/database/gorms"
 )
 
-type ProjectAuth struct {
+type ProjectAuthDao struct {
 	conn *gorms.GormConn
 }
 
-func (p *ProjectAuth) FindAuthList(ctx context.Context, orgCode int64) (list []*data.ProjectAuth, err error) {
+func (p *ProjectAuthDao) FindAuthListPage(ctx context.Context, orgCode int64, page int64, pageSize int64) (list []*data.ProjectAuth, total int64, err error) {
+	session := p.conn.Default(ctx)
+	err = session.Model(&data.ProjectAuth{}).
+		Where("organization_code=?", orgCode).
+		Limit(int(pageSize)).
+		Offset(int((page - 1) * pageSize)).
+		Find(&list).Error
+	err = session.Model(&data.ProjectAuth{}).
+		Where("organization_code=?", orgCode).
+		Count(&total).Error
+	return
+}
+
+func (p *ProjectAuthDao) FindAuthList(ctx context.Context, orgCode int64) (list []*data.ProjectAuth, err error) {
 	session := p.conn.Default(ctx)
 	err = session.Model(&data.ProjectAuth{}).Where("organization_code=?", orgCode).Find(&list).Error
 	return
 }
 
-func NewProjectAuthDao() *ProjectAuth {
-	return &ProjectAuth{
+func NewProjectAuthDao() *ProjectAuthDao {
+	return &ProjectAuthDao{
 		conn: gorms.New(),
 	}
 }

@@ -9,14 +9,18 @@ import (
 	"test.com/project-common/discovery"
 	"test.com/project-common/logs"
 	"test.com/project-grpc/account"
+	"test.com/project-grpc/auth"
 	"test.com/project-grpc/department"
+	"test.com/project-grpc/menu"
 	"test.com/project-grpc/project"
 	"test.com/project-grpc/task"
 	"test.com/project-project/config"
 	"test.com/project-project/internal/interceptor"
 	"test.com/project-project/internal/rpc"
 	accountServiceV1 "test.com/project-project/pkg/service/account.service.v1"
+	authServiceV1 "test.com/project-project/pkg/service/auth.service.v1"
 	departmentServiceV1 "test.com/project-project/pkg/service/department.service.v1"
+	menuServiceV1 "test.com/project-project/pkg/service/menu.service.v1"
 	projectServiceV1 "test.com/project-project/pkg/service/project.service.v1"
 	taskServiceV1 "test.com/project-project/pkg/service/task.service.v1"
 )
@@ -64,6 +68,8 @@ func RegisterGrpc() *grpc.Server {
 			task.RegisterTaskServiceServer(g, taskServiceV1.New())
 			account.RegisterAccountServiceServer(g, accountServiceV1.New())
 			department.RegisterDepartmentServiceServer(g, departmentServiceV1.New())
+			auth.RegisterAuthServiceServer(g, authServiceV1.New())
+			menu.RegisterMenuServiceServer(g, menuServiceV1.New())
 		},
 	}
 	s := grpc.NewServer(interceptor.New().Cache())
