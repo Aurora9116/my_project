@@ -23,6 +23,8 @@ func (*RouterProject) Route(r *gin.Engine) {
 	group := r.Group("/project")
 	// todo bug
 	group.Use(midd.TokenVerify())
+	group.Use(Auth())
+	group.Use(ProjectAuth())
 	group.POST("/index", h.index)
 	group.POST("/project/selfList", h.myProjectList)
 	group.POST("/project", h.myProjectList)
@@ -62,6 +64,8 @@ func (*RouterProject) Route(r *gin.Engine) {
 
 	auth := NewAuth()
 	group.POST("/auth", auth.authList)
+	group.POST("/auth/apply", auth.apply)
+	group.POST("/auth/save", auth.apply)
 	menu := NewMenu()
 	group.POST("/menu/menu", menu.menuList)
 }

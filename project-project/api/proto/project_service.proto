@@ -120,6 +120,7 @@ message ProjectRpcMessage{
   string projectCode = 12;
   bool deleted = 13;
   string collectType = 14;
+  string taskCode = 15;
 }
 message ProjectTemplateMessage{
   int32 id = 1;
@@ -193,6 +194,11 @@ message ProjectNodeMessage{
 message ProjectNodeResponseMessage {
   repeated ProjectNodeMessage nodes = 1;
 }
+message FindProjectByMemberIdResponse{
+  ProjectMessage project = 1;
+  bool isMember = 2;
+  bool isOwner = 3;
+}
 service ProjectService {
   rpc Index(IndexMessage) returns (IndexResponse) {}
   rpc FindProjectByMemId(ProjectRpcMessage) returns (MyProjectResponse){}
@@ -204,4 +210,5 @@ service ProjectService {
   rpc UpdateProject(UpdateProjectMessage) returns (UpdateProjectResponse){}
   rpc GetLogBySelfProject(ProjectRpcMessage) returns (ProjectLogResponse){}
   rpc NodeList(ProjectRpcMessage) returns (ProjectNodeResponseMessage){}
+  rpc FindProjectByMemberId(ProjectRpcMessage) returns (FindProjectByMemberIdResponse){}
 }
