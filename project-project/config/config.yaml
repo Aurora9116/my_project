@@ -32,3 +32,25 @@ jwt:
   refreshExp: 14
   accessSecret: msprojext
   refreshSecret: me_project
+db:
+  separation: true
+  master:
+    name: master
+    username: root
+    password: root
+    host: 127.0.0.1
+    port: 3309
+    db: msproject
+  slave:
+    - username: root
+      password: root
+      host: 127.0.0.1
+      port: 3309
+      db: msproject_slave1
+      name: slave1
+    - username: root
+      password: root
+      host: 127.0.0.1
+      port: 3309
+      db: msproject_slave1
+      name: slave2
