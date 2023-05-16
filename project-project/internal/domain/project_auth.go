@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"fmt"
 	"go.uber.org/zap"
 	"strconv"
 	"test.com/project-common/errs"
@@ -87,6 +88,7 @@ func (d *ProjectAuthDomain) AuthNodes(memberId int64) ([]string, *errs.BError) {
 	if account == nil {
 		return nil, model.ParamsError
 	}
+	fmt.Println(account.Authorize)
 	authorize := account.Authorize
 	authId, _ := strconv.ParseInt(authorize, 10, 64)
 	authNodeList, dbErr := d.projectAuthNodeDomain.AuthNodeList(authId)

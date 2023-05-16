@@ -1,7 +1,9 @@
 package config
 
 import (
+	"bytes"
 	"github.com/go-redis/redis/v8"
+	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"github.com/spf13/viper"
 	"log"
 	"os"
@@ -60,24 +62,87 @@ type JwtConfig struct {
 
 func InitConfig() *Config {
 	conf := &Config{viper: viper.New()}
-	workDir, _ := os.Getwd()
-	conf.viper.SetConfigName("config")
-	conf.viper.SetConfigType("yaml")
-	conf.viper.AddConfigPath("etc/ms_project/user")
-	conf.viper.AddConfigPath(workDir + "/config")
-	err := conf.viper.ReadInConfig()
+	//加入nacos
+	nacos := InitNacosClient()
+	configYaml, err := nacos.confClient.GetConfig(vo.ConfigParam{
+		DataId: "config.yaml",
+		Group:  BC.NacosConfig.Group,
+	})
 	if err != nil {
 		log.Fatalln(err)
 	}
-	conf.ReadServerConfig()
-	conf.InitZapLog()
-	conf.ReadGrpcConfig()
-	conf.ReadEtcdConfig()
-	conf.InitMysqlConfig()
-	conf.InitJwtConfig()
-	conf.InitDbConfig()
+	conf.viper.SetConfigType("yaml")
+	if configYaml != "" {
+		err := conf.viper.ReadConfig(bytes.NewBuffer([]byte(configYaml)))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println("load nacos config")
+		err = nacos.confClient.ListenConfig(vo.ConfigParam{
+			DataId: "config.yaml",
+			Group:  BC.NacosConfig.Group,
+			OnChange: func(namespace, group, dataId, data string) {
+				log.Println("listen nacos config change", data)
+				//监听变化
+				err = conf.viper.ReadConfig(bytes.NewBuffer([]byte(data)))
+				if err != nil {
+					log.Printf("listen nacos config parse err %s \n", err.Error())
+				}
+				//重新载入配置
+				conf.ReLoadAllConfig()
+			},
+		})
+		if err != nil {
+			log.Fatalln(err)
+		}
+	} else {
+		workDir, _ := os.Getwd()
+		conf.viper.SetConfigName("config")
+		conf.viper.AddConfigPath(workDir + "/config")
+		conf.viper.AddConfigPath("F:/project/ms_project/project-project/config")
+		err := conf.viper.ReadInConfig()
+		if err != nil {
+			log.Fatalln(err)
+		}
+		//workDir, _ := os.Getwd()
+		//conf.viper.SetConfigName("config")
+		//conf.viper.SetConfigType("yaml")
+		//conf.viper.AddConfigPath("etc/ms_project/user")
+		//conf.viper.AddConfigPath(workDir + "/config")
+		//err := conf.viper.ReadInConfig()
+		//if err != nil {
+		//	log.Fatalln(err)
+		//}
+	}
+	conf.ReLoadAllConfig()
 	return conf
 }
+
+func (c *Config) ReLoadAllConfig() {
+	c.ReadServerConfig()
+	c.InitZapLog()
+	c.ReadGrpcConfig()
+	c.ReadEtcdConfig()
+	c.InitMysqlConfig()
+	c.InitJwtConfig()
+	c.InitDbConfig()
+	//重新创建相关的客户端
+	c.ReConnRedis()
+	c.ReConnMysql()
+}
+
+//func InitConfig() *Config {
+//	conf := &Config{viper: viper.New()}
+//
+//	conf.ReadServerConfig()
+//	conf.InitZapLog()
+//	conf.ReadGrpcConfig()
+//	conf.ReadEtcdConfig()
+//	conf.InitMysqlConfig()
+//	conf.InitJwtConfig()
+//	conf.InitDbConfig()
+//	return conf
+//}
 
 func (c *Config) InitZapLog() {
 	// 从配置中读取日志配置，初始化日志
