@@ -60,9 +60,17 @@ services:
       - JVM_XMS=512m
       - JVM_MAX=512m
       - JVM_XMN=256m
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=mysql
+      - MYSQL_SERVICE_DB_NAME=nacos
+      - MYSQL_SERVICE_PORT=3306
+      - MYSQL_SERVICE_USER=root
+      - MYSQL_SERVICE_PASSWORD=root
     privileged: true
     volumes:
       - ${NACOS_DIR}/data:/home/nacos/data
+      - ${NACOS_DIR}/logs:/home/nacos/logs
+      - nacos-conf:/home/nacos/conf
     ports:
       - 8848:8848
       - 9848:9848
@@ -172,6 +180,17 @@ services:
       MONITORING_ENABLED: false
     depends_on:
       - es
+  minio:
+    container_name: minio
+    image: bitnami/minio:2023
+    ports:
+      - '9009:9000'
+      - '9001:9001'
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=admin123456
+    volumes:
+      - '${MINIO_DIR}/data:/data'
 volumes:
   nacos-conf:
     driver: local

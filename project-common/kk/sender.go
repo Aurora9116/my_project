@@ -31,7 +31,11 @@ func GetWriter(addr string) *KafkaWriter {
 func (kw *KafkaWriter) Send(msg LogData) {
 	kw.Data <- msg
 }
-
+func (kw *KafkaWriter) Close() {
+	if kw.w != nil {
+		kw.w.Close()
+	}
+}
 func (kw *KafkaWriter) sendMsg() {
 	for {
 		select {

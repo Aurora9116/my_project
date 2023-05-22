@@ -71,9 +71,7 @@ func (p *ProjectDao) FindProjectByPIdAndMemId(ctx context.Context, projectCode i
 	session := p.conn.Default(ctx)
 	sql := fmt.Sprintf("select a.*,b.project_code,b.member_code,b.join_time,b.is_owner,b.authorize from ms_project a, ms_project_member b where a.id = b.project_code and b.member_code = ? and b.project_code = ? limit 1")
 	raw := session.Raw(sql, memberId, projectCode)
-	fmt.Println("raw==>", raw)
 	err := raw.Scan(&pms).Error
-	fmt.Println("pms==>", pms)
 	return pms, err
 }
 
